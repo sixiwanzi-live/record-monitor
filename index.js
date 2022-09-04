@@ -16,7 +16,7 @@ const recordPath = '../video';
             if (file.indexOf('.flv') !== -1) {
                 console.log(file);
                 const flv = `${recordPath}/${dir}/${file}`;
-                const mp4 = `${recordPath}/${dir}/${file.replace('.flv', 'mp4')}`;
+                const mp4 = `${recordPath}/${dir}/${file.replace('.flv', '.mp4')}`;
                 try {
                     await new Promise((res, rej) => {
                         let cmd = [
@@ -40,7 +40,7 @@ const recordPath = '../video';
                             rej(error);
                         });
                     });
-                    
+
                 } catch (ex) {
                     console.log(ex);
                     break;
