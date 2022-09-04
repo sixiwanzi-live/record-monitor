@@ -7,7 +7,7 @@ const recordPath = '../video';
     const dirs = await readdir(recordPath);
     for (const dir of dirs) {
         console.log(dir);
-        const files = await readdir(dir);
+        const files = await readdir(`${recordPath}/${dir}`);
         for (const file of files) {
             if (file.indexOf('.mp4') !== -1) {
                 console.log(file);
