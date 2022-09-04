@@ -4,8 +4,14 @@ import { createInterface } from 'readline';
 
 const recordPath = '../video';
 (async () => {
-    const files = await readdir(recordPath);
-    for (const file of files) {
-        console.log(file);
+    const dirs = await readdir(recordPath);
+    for (const dir of dirs) {
+        console.log(dir);
+        const files = await readdir(dir);
+        for (const file of files) {
+            if (file.indexOf('.mp4') !== -1) {
+                console.log(file);
+            }
+        }
     }
 })();
