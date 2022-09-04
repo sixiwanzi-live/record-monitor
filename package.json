@@ -1,0 +1,19 @@
+{
+  "name": "record-monitor",
+  "version": "1.0.0",
+  "description": "监控录播是否结束，并转移到相应文件夹",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sixiwanzi-live/record-monitor.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sixiwanzi-live/record-monitor/issues"
+  },
+  "homepage": "https://github.com/sixiwanzi-live/record-monitor#readme"
+}
