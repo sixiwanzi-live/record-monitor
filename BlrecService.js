@@ -7,8 +7,9 @@ export default class BlrecService {
         const body = ctx.request.body;
         console.log(body);
 
-        const type = body.data.type;
+        const type = body.type;
         if (type === 'VideoFileCompletedEvent') {
+            console.log('视频完成webhook');
             const roomId = body.data.room_id;
             const src = body.data.path;
             console.log(`房间号:${roomId}, 视频文件:${src}`);
