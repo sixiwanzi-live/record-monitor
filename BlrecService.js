@@ -98,7 +98,7 @@ export default class BlrecService {
                 });
             } catch (ex) {
                 console.log(ex);
-                return;
+                return ex;
             } 
         }
     }
