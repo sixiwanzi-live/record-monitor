@@ -1,5 +1,6 @@
 import { stat } from 'fs/promises';
 import { spawn } from 'child_process';
+import config from './config.js';
 
 export default class BlrecService {
 
