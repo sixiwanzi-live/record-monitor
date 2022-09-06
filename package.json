@@ -16,5 +16,12 @@
   "bugs": {
     "url": "https://github.com/sixiwanzi-live/record-monitor/issues"
   },
-  "homepage": "https://github.com/sixiwanzi-live/record-monitor#readme"
+  "homepage": "https://github.com/sixiwanzi-live/record-monitor#readme",
+  "dependencies": {
+    "@koa/cors": "^3.4.1",
+    "@koa/router": "^12.0.0",
+    "koa": "^2.13.4",
+    "koa-body": "^5.0.0",
+    "moment": "^2.29.4"
+  }
 }
