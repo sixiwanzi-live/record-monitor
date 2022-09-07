@@ -20,7 +20,11 @@ export default class BlrecService {
             console.log(`房间号:${roomId}, 视频文件:${src}`);
 
             try {
-                const remoteDst = config.blrec.whitelist.filter(item => item.roomId === roomId)[0].remoteDst;
+                const rooms = config.blrec.whitelist.filter(item => item.roomId === roomId);
+                if (!rooms || rooms.length === 0) {
+                    return;
+                }
+                const remoteDst = rooms[0].remoteDst;
                 console.log(`远程文件夹为:${remoteDst}`);
                 // 确保文件存在
                 const res = await stat(src);
@@ -32,6 +36,7 @@ export default class BlrecService {
 
                 await new Promise((res, rej) => {
                     let cmd = [
+                        '-y',
                         '-i', src,
                         '-c', 'copy',
                         '-movflags', 'faststart',
@@ -64,7 +69,7 @@ export default class BlrecService {
                             let cmd = [
                                 'copy', dst,
                                 remoteDst,
-                                '-P', '--bwlimit', '1M'
+                                '-P', '--bwlimit', `${config.blrec.limit.upload}M`
                             ];
                             let p = spawn('rclone', cmd);
                             p.stdout.on('data', (data) => {
@@ -90,34 +95,53 @@ export default class BlrecService {
                         console.log(ex);
                     }
                 }, 1000);
-                
-                // const xml = dst.replaceAll('.mp4', '.xml');
-                // // 上传弹幕xml文件
-                // await new Promise((res, rej) => {
-                //     let cmd = [
-                //         'copy', xml,
-                //         remoteDst
-                //     ];
-                //     let p = spawn('rclone', cmd);
-                //     p.stdout.on('data', (data) => {
-                //         console.log('stdout: ' + data.toString());
-                //     });
-                //     p.stderr.on('data', (data) => {
-                //         console.log('stderr: ' + data.toString());
-                //     });
-                //     p.on('close', (code) => {
-                //         console.log(`rclone上传结束:${xml}, code:${code}`);
-                //         res();
-                //     });
-                //     p.on('error', (error) => {
-                //         console.log(error);
-                //         rej(error);
-                //     });
-                // });
             } catch (ex) {
                 console.log(ex);
                 return ex;
             } 
+        } else if (type === 'DanmakuFileCompletedEvent') {
+            console.log('弹幕完成webhook');
+            const roomId = body.data.room_id;
+            const src = body.data.path;
+            console.log(`房间号:${roomId}, 弹幕文件:${src}`);
+            try {
+                const rooms = config.blrec.whitelist.filter(item => item.roomId === roomId);
+                if (!rooms || rooms.length === 0) {
+                    return;
+                }
+                const remoteDst = rooms[0].remoteDst;
+                console.log(`远程文件夹为:${remoteDst}`);
+                // 确保文件存在
+                const res = await stat(src);
+                if (res.size <= 0) {
+                    throw '文件大小为0';
+                }
+                // 上传弹幕
+                await new Promise((res, rej) => {
+                    let cmd = [
+                        'copy', src,
+                        remoteDst
+                    ];
+                    let p = spawn('rclone', cmd);
+                    p.stdout.on('data', (data) => {
+                        console.log('stdout: ' + data.toString());
+                    });
+                    p.stderr.on('data', (data) => {
+                        console.log('stderr: ' + data.toString());
+                    });
+                    p.on('close', (code) => {
+                        console.log(`rclone上传结束:${dst}, code:${code}`);
+                        res();
+                    });
+                    p.on('error', (error) => {
+                        console.log(error);
+                        rej(error);
+                    });
+                });
+            } catch (ex) {
+                console.log(ex);
+                return ex;
+            }
         }
     }
 }
