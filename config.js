@@ -8,6 +8,14 @@ export default {
             {
                 roomId: 23058,
                 remoteDst: 'asoul:/test'
+            },
+            {
+                roomId: 437817,
+                remoteDst: 'asoul:/test'
+            },
+            {
+                roomId: 22508204,
+                remoteDst: 'asoul:/test'
             }
         ]
     }
