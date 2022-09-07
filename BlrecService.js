@@ -1,5 +1,5 @@
 import { stat, rename } from 'fs/promises';
-import { spawn } from 'child_process';
+import { spawn, exec } from 'child_process';
 import config from './config.js';
 
 export default class BlrecService {
@@ -66,30 +66,44 @@ export default class BlrecService {
                         this.busy = true;
                         // 上传转码后mp4
                         await new Promise((res, rej) => {
-                            let cmd = [
-                                'copy', dst,
-                                remoteDst,
-                                '-P', '--bwlimit', `${config.blrec.limit.upload}M`
-                            ];
-                            let p = spawn('rclone', cmd);
-                            p.stdout.on('data', (data) => {
-                                console.log('stdout: ' + data.toString());
-                            });
-                            p.stderr.on('data', (data) => {
-                                console.log('stderr: ' + data.toString());
-                            });
-                            p.on('close', (code) => {
-                                this.busy = false;
-                                console.log(`rclone上传结束:${dst}, code:${code}`);
+                            const cmd = `rclone copy ${dst} ${remoteDst} -P --bwlimit ${config.blrec.limit.upload}M`;
+                            console.log(cmd);
+                            exec(cmd, (err, stdout, stderr) => {
                                 clearInterval(timer);
-                                res();
+                                if (err) {
+                                    this.busy = false;
+                                    rej();
+                                } else {
+                                    this.busy = false;
+                                    console.log(stdout);
+                                    console.log(stderr);
+                                    res();
+                                }
                             });
-                            p.on('error', (error) => {
-                                this.busy = false;
-                                console.log(error);
-                                clearInterval(timer);
-                                rej(error);
-                            });
+                            // let cmd = [
+                            //     'copy', dst,
+                            //     remoteDst,
+                            //     '-P', '--bwlimit', `${config.blrec.limit.upload}M`
+                            // ];
+                            // let p = spawn('rclone', cmd);
+                            // p.stdout.on('data', (data) => {
+                            //     console.log('stdout: ' + data.toString());
+                            // });
+                            // p.stderr.on('data', (data) => {
+                            //     console.log('stderr: ' + data.toString());
+                            // });
+                            // p.on('close', (code) => {
+                            //     this.busy = false;
+                            //     console.log(`rclone上传结束:${dst}, code:${code}`);
+                            //     clearInterval(timer);
+                            //     res();
+                            // });
+                            // p.on('error', (error) => {
+                            //     this.busy = false;
+                            //     console.log(error);
+                            //     clearInterval(timer);
+                            //     rej(error);
+                            // });
                         });
                     } catch (ex) {
                         console.log(ex);
