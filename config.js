@@ -14,7 +14,7 @@ export default {
                 remoteDst: 'asoul:/test'
             },
             {
-                roomId: 24991806,
+                roomId: 21144080,
                 remoteDst: 'asoul:/test'
             }
         ]
