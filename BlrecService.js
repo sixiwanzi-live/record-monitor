@@ -13,7 +13,8 @@ export default class BlrecService {
                 await new Promise((res, rej) => {
                     let cmd = [
                         'copy', dst,
-                        remoteDst
+                        remoteDst,
+                        '-P', '--bwlimit', '3M'
                     ];
                     let p = spawn('rclone', cmd);
                     p.stdout.on('data', (data) => {
