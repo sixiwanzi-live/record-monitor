@@ -57,8 +57,8 @@ export default class BlrecService {
 
                 const timer = setInterval(async () => {
                     try {
-                        if (busy) return;
-                        busy = true;
+                        if (this.busy) return;
+                        this.busy = true;
                         // 上传转码后mp4
                         await new Promise((res, rej) => {
                             let cmd = [
@@ -74,13 +74,13 @@ export default class BlrecService {
                                 console.log('stderr: ' + data.toString());
                             });
                             p.on('close', (code) => {
-                                busy = false;
+                                this.busy = false;
                                 console.log(`rclone上传结束:${dst}, code:${code}`);
                                 clearInterval(timer);
                                 res();
                             });
                             p.on('error', (error) => {
-                                busy = false;
+                                this.busy = false;
                                 console.log(error);
                                 clearInterval(timer);
                                 rej(error);
