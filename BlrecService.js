@@ -1,41 +1,11 @@
 import { stat } from 'fs/promises';
 import { spawn } from 'child_process';
-import { EventEmitter } from 'events';
 import config from './config.js';
 
 export default class BlrecService {
 
     constructor() {
-        this.emitter = new EventEmitter();
-        this.emitter.on("rclone", async (dst, remoteDst) => {
-            try {
-                // 上传转码后mp4
-                await new Promise((res, rej) => {
-                    let cmd = [
-                        'copy', dst,
-                        remoteDst,
-                        '-P', '--bwlimit', '3M'
-                    ];
-                    let p = spawn('rclone', cmd);
-                    p.stdout.on('data', (data) => {
-                        console.log('stdout: ' + data.toString());
-                    });
-                    p.stderr.on('data', (data) => {
-                        console.log('stderr: ' + data.toString());
-                    });
-                    p.on('close', (code) => {
-                        console.log(`rclone上传结束:${dst}, code:${code}`);
-                        res();
-                    });
-                    p.on('error', (error) => {
-                        console.log(error);
-                        rej(error);
-                    });
-                });
-            } catch (ex) {
-                console.log(ex);
-            }
-        });
+        this.busy = false;
     }
 
     webhook = async (ctx) => {
@@ -84,7 +54,42 @@ export default class BlrecService {
                     });
                 });
                 await stat(dst);
-                this.emitter.emit("rclone", dst, remoteDst);
+
+                const timer = setInterval(async () => {
+                    try {
+                        if (busy) return;
+                        busy = true;
+                        // 上传转码后mp4
+                        await new Promise((res, rej) => {
+                            let cmd = [
+                                'copy', dst,
+                                remoteDst,
+                                '-P', '--bwlimit', '1M'
+                            ];
+                            let p = spawn('rclone', cmd);
+                            p.stdout.on('data', (data) => {
+                                console.log('stdout: ' + data.toString());
+                            });
+                            p.stderr.on('data', (data) => {
+                                console.log('stderr: ' + data.toString());
+                            });
+                            p.on('close', (code) => {
+                                busy = false;
+                                console.log(`rclone上传结束:${dst}, code:${code}`);
+                                clearInterval(timer);
+                                res();
+                            });
+                            p.on('error', (error) => {
+                                busy = false;
+                                console.log(error);
+                                clearInterval(timer);
+                                rej(error);
+                            });
+                        });
+                    } catch (ex) {
+                        console.log(ex);
+                    }
+                }, 1000);
                 
                 // const xml = dst.replaceAll('.mp4', '.xml');
                 // // 上传弹幕xml文件
