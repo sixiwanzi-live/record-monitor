@@ -1,4 +1,4 @@
-import { stat } from 'fs/promises';
+import { stat, rename } from 'fs/promises';
 import { spawn } from 'child_process';
 import config from './config.js';
 
@@ -104,7 +104,10 @@ export default class BlrecService {
             const roomId = body.data.room_id;
             const src = body.data.path;
             console.log(`房间号:${roomId}, 弹幕文件:${src}`);
+
             try {
+                const dst = src.replaceAll('/index.xml', '.xml');
+                await rename(src, dst);
                 const rooms = config.blrec.whitelist.filter(item => item.roomId === roomId);
                 if (!rooms || rooms.length === 0) {
                     return;
@@ -112,14 +115,14 @@ export default class BlrecService {
                 const remoteDst = rooms[0].remoteDst;
                 console.log(`远程文件夹为:${remoteDst}`);
                 // 确保文件存在
-                const res = await stat(src);
+                const res = await stat(dst);
                 if (res.size <= 0) {
                     throw '文件大小为0';
                 }
                 // 上传弹幕
                 await new Promise((res, rej) => {
                     let cmd = [
-                        'copy', src,
+                        'copy', dst,
                         remoteDst
                     ];
                     let p = spawn('rclone', cmd);
