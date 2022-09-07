@@ -66,7 +66,7 @@ export default class BlrecService {
                         this.busy = true;
                         // 上传转码后mp4
                         await new Promise((res, rej) => {
-                            const cmd = `rclone copy ${dst} ${remoteDst} -P --bwlimit ${config.blrec.limit.upload}M`;
+                            const cmd = `rclone copy "${dst}" "${remoteDst}" -P --bwlimit ${config.blrec.limit.upload}M`;
                             console.log(cmd);
                             exec(cmd, (err, stdout, stderr) => {
                                 clearInterval(timer);
