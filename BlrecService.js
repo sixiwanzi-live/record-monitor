@@ -67,8 +67,8 @@ export default class BlrecService {
                         // 上传转码后mp4
                         await new Promise((res, rej) => {
                             let cmd = [
-                                'copy', `"${dst}"`,
-                                `"${remoteDst}"`,
+                                'copy', `${dst}`,
+                                `${remoteDst}`,
                                 '-P', '--bwlimit', `${config.blrec.limit.upload}M`
                             ];
                             let p = spawn('rclone', cmd);
