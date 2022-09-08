@@ -27,6 +27,11 @@ export default {
             {
                 roomId: 2444178,
                 remoteDst: 'sp8:/正直少年李发卡'
+            },
+            {
+                // 3号直播间，用于测试
+                roomId: 23058,
+                remoteDst: 'asoul:/test'
             }
         ]
     }
