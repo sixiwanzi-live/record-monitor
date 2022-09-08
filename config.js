@@ -31,7 +31,7 @@ export default {
             {
                 // 3号直播间，用于测试
                 roomId: 23058,
-                remoteDst: 'asoul:/test'
+                remoteDst: 'sp9:/東雪蓮Official'
             }
         ]
     }
