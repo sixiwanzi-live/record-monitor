@@ -5,7 +5,7 @@ export default {
     },
     blrec: {
         limit: {
-            upload: 3
+            upload: 2
         },
         whitelist: [
             {
