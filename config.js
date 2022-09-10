@@ -9,24 +9,8 @@ export default {
         },
         whitelist: [
             {
-                roomId: 25290861,
-                remoteDst: 'sp9:/凜凜蝶凜'
-            },
-            {
-                roomId: 22816111,
-                remoteDst: 'sp9:/東雪蓮Official'
-            },
-            {
-                roomId: 22886883,
-                remoteDst: 'xt:'
-            },
-            {
-                roomId: 22230707,
-                remoteDst: 'sp9:/峰哥亡命天涯'
-            },
-            {
-                roomId: 2444178,
-                remoteDst: 'sp8:/正直少年李发卡'
+                roomId: 25061813,
+                remoteDst: 'sp8:/麻尤米mayumi'
             },
             {
                 // 3号直播间，用于测试
