@@ -32,7 +32,7 @@ export default class BlrecService {
                     throw '文件大小为0';
                 }
                 // 将会生成同名mp4文件
-                const dst = src.replaceAll('/index.m3u8', '.mp4');
+                const dst = src.replaceAll('.flv', '.mp4');
 
                 await new Promise((res, rej) => {
                     let cmd = [
@@ -105,8 +105,7 @@ export default class BlrecService {
             console.log(`房间号:${roomId}, 弹幕文件:${src}`);
 
             try {
-                const dst = src.replaceAll('/index.xml', '.xml');
-                await rename(src, dst);
+                const dst = src;
                 const rooms = config.blrec.whitelist.filter(item => item.roomId === roomId);
                 if (!rooms || rooms.length === 0) {
                     return;
