@@ -11,7 +11,7 @@ import BlrecService from './BlrecService.js';
     const app = new Koa({ proxy: true });
     const router = new Router();
 
-    app.context.logger = pino();
+    app.context.logger = pino({ transport: { target: 'pino-pretty' } });
     app.context.blrecService = new BlrecService();
     
     /**
