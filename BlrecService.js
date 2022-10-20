@@ -73,7 +73,7 @@ export default class BlrecService {
                         // 上传转码后mp4
                         await new Promise((res, rej) => {
                             let cmd = [
-                                'copy', `${dst}`,
+                                'move', `${dst}`,
                                 `${remoteDst}`,
                                 '-P', '--bwlimit', `${config.blrec.limit.upload}M`
                             ];
