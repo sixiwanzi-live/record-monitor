@@ -5,7 +5,7 @@ export default {
     },
     blrec: {
         limit: {
-            upload: 2
+            upload: 2 // 单位MBps
         },
         whitelist: [
             {
@@ -16,6 +16,16 @@ export default {
                 // 3号直播间，用于测试
                 roomId: 23058,
                 remoteDst: 'sp9:/東雪蓮Official'
+            }
+        ],
+        whitelist1: [
+            {
+                dir: 'sp8',
+                rooms: [25061813]
+            },
+            {
+                dir: 'sp9',
+                rooms: [23058]
             }
         ]
     }

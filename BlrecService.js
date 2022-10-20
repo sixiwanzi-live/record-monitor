@@ -6,6 +6,7 @@ export default class BlrecService {
 
     constructor() {
         this.busy = false;
+        this.userMap = new Map();
     }
 
     webhook = async (ctx) => {
@@ -13,18 +14,25 @@ export default class BlrecService {
         console.log(body);
 
         const type = body.type;
-        if (type === 'VideoPostprocessingCompletedEvent') {
+        if (type === 'LiveBeganEvent') {
+            console.log('直播开始webhook');
+            const name = body.data.user_info.name;
+            const roomId = body.data.room_info.room_id;
+            this.userMap.set(roomId, name);
+        } else if (type === 'VideoPostprocessingCompletedEvent') {
             console.log('视频完成webhook');
             const roomId = body.data.room_id;
             const src = body.data.path;
             console.log(`房间号:${roomId}, 视频文件:${src}`);
 
             try {
-                const rooms = config.blrec.whitelist.filter(item => item.roomId === roomId);
+                const rooms = config.blrec.whitelist1.filter(item => item.rooms.includes(roomId));
+                // const rooms = config.blrec.whitelist.filter(item => item.roomId === roomId);
                 if (!rooms || rooms.length === 0) {
                     return;
                 }
-                const remoteDst = rooms[0].remoteDst;
+                // const remoteDst = rooms[0].remoteDst;
+                const remoteDst = `${rooms[0].dir}:/${userMap.get(roomId)}`;
                 console.log(`远程文件夹为:${remoteDst}`);
                 // 确保文件存在
                 const res = await stat(src);
@@ -106,11 +114,13 @@ export default class BlrecService {
 
             try {
                 const dst = src;
-                const rooms = config.blrec.whitelist.filter(item => item.roomId === roomId);
+                const rooms = config.blrec.whitelist1.filter(item => item.rooms.includes(roomId));
+                // const rooms = config.blrec.whitelist.filter(item => item.roomId === roomId);
                 if (!rooms || rooms.length === 0) {
                     return;
                 }
-                const remoteDst = rooms[0].remoteDst;
+                const remoteDst = `${rooms[0].dir}:/${userMap.get(roomId)}`;
+                // const remoteDst = rooms[0].remoteDst;
                 console.log(`远程文件夹为:${remoteDst}`);
                 // 确保文件存在
                 const res = await stat(dst);
