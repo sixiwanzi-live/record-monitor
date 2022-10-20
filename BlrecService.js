@@ -1,7 +1,6 @@
-import { stat, rename } from 'fs/promises';
-import { spawn, exec } from 'child_process';
+import { stat } from 'fs/promises';
+import { spawn } from 'child_process';
 import config from './config.js';
-import BiliApi from './BiliApi.js';
 
 export default class BlrecService {
 
@@ -22,12 +21,10 @@ export default class BlrecService {
             console.log(`房间号:${roomId}, 用户:${name}, 视频文件:${src}`);
 
             try {
-                const rooms = config.blrec.whitelist1.filter(item => item.rooms.includes(roomId));
-                // const rooms = config.blrec.whitelist.filter(item => item.roomId === roomId);
+                const rooms = config.blrec.whitelist.filter(item => item.rooms.includes(roomId));
                 if (!rooms || rooms.length === 0) {
                     return;
                 }
-                // const remoteDst = rooms[0].remoteDst;
                 const remoteDst = `${rooms[0].dir}:/${name}`;
                 console.log(`远程文件夹为:${remoteDst}`);
                 // 确保文件存在
@@ -111,13 +108,11 @@ export default class BlrecService {
 
             try {
                 const dst = src;
-                const rooms = config.blrec.whitelist1.filter(item => item.rooms.includes(roomId));
-                // const rooms = config.blrec.whitelist.filter(item => item.roomId === roomId);
+                const rooms = config.blrec.whitelist.filter(item => item.rooms.includes(roomId));
                 if (!rooms || rooms.length === 0) {
                     return;
                 }
                 const remoteDst = `${rooms[0].dir}:/${name}`;
-                // const remoteDst = rooms[0].remoteDst;
                 console.log(`远程文件夹为:${remoteDst}`);
                 // 确保文件存在
                 const res = await stat(dst);
@@ -149,26 +144,6 @@ export default class BlrecService {
             } catch (ex) {
                 console.log(ex);
                 return ex;
-            }
-        } else if (type === 'VideoFileCompletedEvent') {
-            console.log('视频结束webhook');
-            const roomId = body.data.room_id;
-            const src = body.data.path;
-
-            const name = src.split(' - ')[1].split('/')[0];
-            console.log(`房间号:${roomId}`);
-            if (!this.userMap.has(roomId)) {
-                const roomInfo = await BiliApi.getRoomInfo(roomId);
-                if (!roomInfo) {
-                    throw `房间id(${roomId})所属uid没找到`;
-                }
-                const uid = roomInfo.uid;
-                const userInfo = await BiliApi.getUserInfo(uid);
-                if (!userInfo) {
-                    throw `用户id(${uid})所属昵称没找到`;
-                }
-                console.log(`创建用户关联Room(${roomId}), User(${userInfo.name})`);
-                this.userMap.set(roomId, userInfo.name);
             }
         }
     }

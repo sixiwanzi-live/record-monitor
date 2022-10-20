@@ -9,17 +9,6 @@ export default {
         },
         whitelist: [
             {
-                roomId: 25061813,
-                remoteDst: 'sp8:/麻尤米mayumi'
-            },
-            {
-                // 3号直播间，用于测试
-                roomId: 23058,
-                remoteDst: 'sp9:/東雪蓮Official'
-            }
-        ],
-        whitelist1: [
-            {
                 dir: 'sp8',
                 rooms: [25061813]
             },
