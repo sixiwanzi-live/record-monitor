@@ -21,18 +21,8 @@ export default class BlrecService {
             const src = body.data.path;
             console.log(`房间号:${roomId}, 视频文件:${src}`);
             if (!this.userMap.has(roomId)) {
-                const roomInfo = await BiliApi.getRoomInfo(roomId);
-                console.log(`roomInfo:${roomInfo}`);
-                if (!roomInfo) {
-                    throw `房间id(${roomId})所属uid没找到`;
-                }
-                const uid = roomInfo.uid;
-                const userInfo = await BiliApi.getUserInfo(uid);
-                console.log(`userInfo:${userInfo}`);
-                if (!userInfo) {
-                    throw `用户id(${uid})所属昵称没找到`;
-                }
-                this.userMap.set(roomId, userInfo.name);
+                console.log(`Room(${roomId})找不到用户名`);
+                return; 
             }
 
             try {
@@ -122,16 +112,8 @@ export default class BlrecService {
             const src = body.data.path;
             console.log(`房间号:${roomId}, 弹幕文件:${src}`);
             if (!this.userMap.has(roomId)) {
-                const roomInfo = await BiliApi.getRoomInfo(roomId);
-                if (!roomInfo) {
-                    throw `房间id(${roomId})所属uid没找到`;
-                }
-                const uid = roomInfo.uid;
-                const userInfo = await BiliApi.getUserInfo(uid);
-                if (!userInfo) {
-                    throw `用户id(${uid})所属昵称没找到`;
-                }
-                this.userMap.set(roomId, userInfo.name);
+                console.log(`Room(${roomId})找不到用户名`);
+                return; 
             }
 
             try {
@@ -174,6 +156,23 @@ export default class BlrecService {
             } catch (ex) {
                 console.log(ex);
                 return ex;
+            }
+        } else if (type === 'VideoFileCompletedEvent') {
+            console.log('视频结束webhook');
+            const roomId = body.data.room_id;
+            console.log(`房间号:${roomId}`);
+            if (!this.userMap.has(roomId)) {
+                const roomInfo = await BiliApi.getRoomInfo(roomId);
+                if (!roomInfo) {
+                    throw `房间id(${roomId})所属uid没找到`;
+                }
+                const uid = roomInfo.uid;
+                const userInfo = await BiliApi.getUserInfo(uid);
+                if (!userInfo) {
+                    throw `用户id(${uid})所属昵称没找到`;
+                }
+                console.log(`创建用户关联Room(${roomId}), User(${userInfo.name})`);
+                this.userMap.set(roomId, userInfo.name);
             }
         }
     }
