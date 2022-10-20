@@ -1,11 +1,14 @@
 import { stat } from 'fs/promises';
 import { spawn } from 'child_process';
+import moment from 'moment';
 import config from './config.js';
 
 export default class BlrecService {
 
     constructor() {
         this.busy = false;
+        this.userMap = new Map();
+        this.openMap = new Map();
     }
 
     webhook = async (ctx) => {
@@ -17,15 +20,16 @@ export default class BlrecService {
             ctx.logger.info('视频处理完成webhook');
             const roomId = body.data.room_id;
             const src = body.data.path;
-            const name = src.split(' - ')[1].split('/')[0];
-            ctx.logger.info(`房间号:${roomId}, 用户:${name}, 视频文件:${src}`);
+            const name = this.userMap.has(roomId) ? this.userMap.get(roomId) : '昵称未识别';
+            const date = this.openMap.has(roomId) ? moment(this.openMap.get(roomId)).format('YYYY.MM') : '年月未识别';
+            ctx.logger.info(`房间号:${roomId}, 用户:${name}, 开播时间:${date}, 视频文件:${src}`);
 
             try {
                 const rooms = config.blrec.whitelist.filter(item => item.rooms.includes(roomId));
                 if (!rooms || rooms.length === 0) {
                     return;
                 }
-                const remoteDst = `${rooms[0].dir}:/${name}`;
+                const remoteDst = config.blrec.dst.datePrefix ? `${rooms[0].dir}:/${date}/${name}` : `${rooms[0].dir}:/${name}`;
                 ctx.logger.info(`远程文件夹:${remoteDst}`);
                 // 确保文件存在
                 const res = await stat(src);
@@ -103,8 +107,9 @@ export default class BlrecService {
             ctx.logger.info('弹幕完成webhook');
             const roomId = body.data.room_id;
             const src = body.data.path;
-            const name = src.split(' - ')[1].split('/')[0];
-            ctx.logger.info(`房间号:${roomId}, 用户:${name}, 弹幕文件:${src}`);
+            const name = this.userMap.has(roomId) ? this.userMap.get(roomId) : '昵称未识别';
+            const date = this.openMap.has(roomId) ? moment(this.openMap.get(roomId)).format('YYYY.MM') : '年月未识别';
+            ctx.logger.info(`房间号:${roomId}, 用户:${name}, 开播时间:${date}, 视频文件:${src}`);
 
             try {
                 const dst = src;
@@ -112,7 +117,7 @@ export default class BlrecService {
                 if (!rooms || rooms.length === 0) {
                     return;
                 }
-                const remoteDst = `${rooms[0].dir}:/${name}`;
+                const remoteDst = config.blrec.dst.datePrefix ? `${rooms[0].dir}:/${date}/${name}` : `${rooms[0].dir}:/${name}`;
                 ctx.logger.info(`远程文件夹:${remoteDst}`);
                 // 确保文件存在
                 const res = await stat(dst);
@@ -145,6 +150,14 @@ export default class BlrecService {
                 ctx.logger.error(`Exception: ${ex}`);
                 return ex;
             }
+        } else if (type === 'LiveBeganEvent') {
+            ctx.logger.info('开播webhook');
+            const roomId = body.data.room_info.room_id;
+            const name = body.data.user_info.name;
+            const time = body.data.room_info.live_start_time;
+            ctx.logger.info(`房间号:${roomId}, 用户:${name}, 开播时间:${moment(time).format("YYYY-MM-DD HH:MM:SS")}`);
+            this.userMap.set(roomId, name);
+            this.openMap.set(roomId, time);
         }
     }
 }
