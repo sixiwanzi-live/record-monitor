@@ -16,7 +16,7 @@ export default {
                 rooms: [25061813]
             },
             {
-                dir: 'sp9',
+                dir: '',
                 rooms: [23058]
             }
         ]
