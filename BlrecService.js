@@ -7,7 +7,6 @@ export default class BlrecService {
 
     constructor() {
         this.busy = false;
-        this.userMap = new Map();
     }
 
     webhook = async (ctx) => {
@@ -19,11 +18,8 @@ export default class BlrecService {
             console.log('视频完成webhook');
             const roomId = body.data.room_id;
             const src = body.data.path;
-            console.log(`房间号:${roomId}, 视频文件:${src}`);
-            if (!this.userMap.has(roomId)) {
-                console.log(`Room(${roomId})找不到用户名`);
-                return; 
-            }
+            const name = src.split(' - ')[1].split('/')[0];
+            console.log(`房间号:${roomId}, 用户:${name}, 视频文件:${src}`);
 
             try {
                 const rooms = config.blrec.whitelist1.filter(item => item.rooms.includes(roomId));
@@ -32,7 +28,7 @@ export default class BlrecService {
                     return;
                 }
                 // const remoteDst = rooms[0].remoteDst;
-                const remoteDst = `${rooms[0].dir}:/${this.userMap.get(roomId)}`;
+                const remoteDst = `${rooms[0].dir}:/${name}`;
                 console.log(`远程文件夹为:${remoteDst}`);
                 // 确保文件存在
                 const res = await stat(src);
@@ -110,11 +106,8 @@ export default class BlrecService {
             console.log('弹幕完成webhook');
             const roomId = body.data.room_id;
             const src = body.data.path;
-            console.log(`房间号:${roomId}, 弹幕文件:${src}`);
-            if (!this.userMap.has(roomId)) {
-                console.log(`Room(${roomId})找不到用户名`);
-                return; 
-            }
+            const name = src.split(' - ')[1].split('/')[0];
+            console.log(`房间号:${roomId}, 用户:${name}, 弹幕文件:${src}`);
 
             try {
                 const dst = src;
@@ -123,7 +116,7 @@ export default class BlrecService {
                 if (!rooms || rooms.length === 0) {
                     return;
                 }
-                const remoteDst = `${rooms[0].dir}:/${this.userMap.get(roomId)}`;
+                const remoteDst = `${rooms[0].dir}:/${name}`;
                 // const remoteDst = rooms[0].remoteDst;
                 console.log(`远程文件夹为:${remoteDst}`);
                 // 确保文件存在
@@ -160,6 +153,9 @@ export default class BlrecService {
         } else if (type === 'VideoFileCompletedEvent') {
             console.log('视频结束webhook');
             const roomId = body.data.room_id;
+            const src = body.data.path;
+
+            const name = src.split(' - ')[1].split('/')[0];
             console.log(`房间号:${roomId}`);
             if (!this.userMap.has(roomId)) {
                 const roomInfo = await BiliApi.getRoomInfo(roomId);
