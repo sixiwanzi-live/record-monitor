@@ -22,11 +22,13 @@ export default class BlrecService {
             console.log(`房间号:${roomId}, 视频文件:${src}`);
             if (!this.userMap.has(roomId)) {
                 const roomInfo = await BiliApi.getRoomInfo(roomId);
+                console.log(`roomInfo:${roomInfo}`);
                 if (!roomInfo) {
                     throw `房间id(${roomId})所属uid没找到`;
                 }
                 const uid = roomInfo.uid;
                 const userInfo = await BiliApi.getUserInfo(uid);
+                console.log(`userInfo:${userInfo}`);
                 if (!userInfo) {
                     throw `用户id(${uid})所属昵称没找到`;
                 }
