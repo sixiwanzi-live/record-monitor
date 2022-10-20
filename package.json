@@ -1,6 +1,6 @@
 {
     "name": "record-monitor",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "description": "监控录播是否结束，并转移到相应文件夹",
     "main": "index.js",
     "type": "module",
