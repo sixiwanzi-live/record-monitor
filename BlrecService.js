@@ -32,7 +32,7 @@ export default class BlrecService {
                     return;
                 }
                 // const remoteDst = rooms[0].remoteDst;
-                const remoteDst = `${rooms[0].dir}:/${userMap.get(roomId)}`;
+                const remoteDst = `${rooms[0].dir}:/${this.userMap.get(roomId)}`;
                 console.log(`远程文件夹为:${remoteDst}`);
                 // 确保文件存在
                 const res = await stat(src);
@@ -119,7 +119,7 @@ export default class BlrecService {
                 if (!rooms || rooms.length === 0) {
                     return;
                 }
-                const remoteDst = `${rooms[0].dir}:/${userMap.get(roomId)}`;
+                const remoteDst = `${rooms[0].dir}:/${this.userMap.get(roomId)}`;
                 // const remoteDst = rooms[0].remoteDst;
                 console.log(`远程文件夹为:${remoteDst}`);
                 // 确保文件存在
