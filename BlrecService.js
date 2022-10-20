@@ -10,15 +10,15 @@ export default class BlrecService {
 
     webhook = async (ctx) => {
         const body = ctx.request.body;
-        console.log(body);
+        ctx.logger.info(body);
 
         const type = body.type;
         if (type === 'VideoPostprocessingCompletedEvent') {
-            console.log('视频完成webhook');
+            ctx.logger.info('视频处理完成webhook');
             const roomId = body.data.room_id;
             const src = body.data.path;
             const name = src.split(' - ')[1].split('/')[0];
-            console.log(`房间号:${roomId}, 用户:${name}, 视频文件:${src}`);
+            ctx.logger.info(`房间号:${roomId}, 用户:${name}, 视频文件:${src}`);
 
             try {
                 const rooms = config.blrec.whitelist.filter(item => item.rooms.includes(roomId));
@@ -26,7 +26,7 @@ export default class BlrecService {
                     return;
                 }
                 const remoteDst = `${rooms[0].dir}:/${name}`;
-                console.log(`远程文件夹为:${remoteDst}`);
+                ctx.logger.info(`远程文件夹:${remoteDst}`);
                 // 确保文件存在
                 const res = await stat(src);
                 if (res.size <= 0) {
@@ -45,17 +45,17 @@ export default class BlrecService {
                     ];
                     let p = spawn('ffmpeg', cmd);
                     p.stdout.on('data', (data) => {
-                        console.log('stdout: ' + data.toString());
+                        ctx.logger.info('stdout: ' + data.toString());
                     });
                     p.stderr.on('data', (data) => {
-                        console.log('stderr: ' + data.toString());
+                        ctx.logger.info('stderr: ' + data.toString());
                     });
                     p.on('close', (code) => {
-                        console.log(`转码结束:${dst}, code:${code}`);
+                        ctx.logger.info(`转码结束:${dst}, code:${code}`);
                         res();
                     });
                     p.on('error', (error) => {
-                        console.log(error);
+                        ctx.logger.error(`错误码:${error}`);
                         rej(error);
                     });
                 });
@@ -75,36 +75,36 @@ export default class BlrecService {
                             ];
                             let p = spawn('rclone', cmd);
                             p.stdout.on('data', (data) => {
-                                console.log('stdout: ' + data.toString());
+                                ctx.logger.info('stdout: ' + data.toString());
                             });
                             p.stderr.on('data', (data) => {
-                                console.log('stderr: ' + data.toString());
+                                ctx.logger.info('stderr: ' + data.toString());
                             });
                             p.on('close', (code) => {
                                 this.busy = false;
-                                console.log(`rclone上传结束:${dst}, code:${code}`);
+                                ctx.logger.info(`rclone上传结束:${dst}, code:${code}`);
                                 res();
                             });
                             p.on('error', (error) => {
                                 this.busy = false;
-                                console.log(error);
+                                ctx.logger.error(`错误码:${error}`);                                
                                 rej(error);
                             });
                         });
                     } catch (ex) {
-                        console.log(ex);
+                        ctx.logger.error(`Exception: ${ex}`);
                     }
                 }, 1000);
             } catch (ex) {
-                console.log(ex);
+                ctx.logger.error(`Exception: ${ex}`);
                 return ex;
             } 
         } else if (type === 'DanmakuFileCompletedEvent') {
-            console.log('弹幕完成webhook');
+            ctx.logger.info('弹幕完成webhook');
             const roomId = body.data.room_id;
             const src = body.data.path;
             const name = src.split(' - ')[1].split('/')[0];
-            console.log(`房间号:${roomId}, 用户:${name}, 弹幕文件:${src}`);
+            ctx.logger.info(`房间号:${roomId}, 用户:${name}, 弹幕文件:${src}`);
 
             try {
                 const dst = src;
@@ -113,7 +113,7 @@ export default class BlrecService {
                     return;
                 }
                 const remoteDst = `${rooms[0].dir}:/${name}`;
-                console.log(`远程文件夹为:${remoteDst}`);
+                ctx.logger.info(`远程文件夹:${remoteDst}`);
                 // 确保文件存在
                 const res = await stat(dst);
                 if (res.size <= 0) {
@@ -127,22 +127,22 @@ export default class BlrecService {
                     ];
                     let p = spawn('rclone', cmd);
                     p.stdout.on('data', (data) => {
-                        console.log('stdout: ' + data.toString());
+                        ctx.logger.info('stdout: ' + data.toString());
                     });
                     p.stderr.on('data', (data) => {
-                        console.log('stderr: ' + data.toString());
+                        ctx.logger.info('stderr: ' + data.toString());
                     });
                     p.on('close', (code) => {
-                        console.log(`rclone上传结束:${dst}, code:${code}`);
+                        ctx.logger.info(`rclone上传结束:${dst}, code:${code}`);
                         res();
                     });
                     p.on('error', (error) => {
-                        console.log(error);
+                        ctx.logger.error(`错误码:${error}`);       
                         rej(error);
                     });
                 });
             } catch (ex) {
-                console.log(ex);
+                ctx.logger.error(`Exception: ${ex}`);
                 return ex;
             }
         }

@@ -2,6 +2,8 @@ import Koa from 'koa';
 import Router from '@koa/router';
 import cors from '@koa/cors';
 import koaBody from 'koa-body';
+import logger from 'koa-logger';
+import pino from 'pino';
 import config from './config.js';
 import BlrecService from './BlrecService.js';
 
@@ -9,6 +11,7 @@ import BlrecService from './BlrecService.js';
     const app = new Koa({ proxy: true });
     const router = new Router();
 
+    app.context.logger = pino();
     app.context.blrecService = new BlrecService();
     
     /**
@@ -27,6 +30,12 @@ import BlrecService from './BlrecService.js';
 
     app.use(koaBody({ 
         jsonLimit: config.web.bodyLimit
+    }));
+
+    app.use(logger((str, args) => {
+        let line = `${args[1]} ${args[2] || ''} ${args[3] || ''} ${args[4] || ''} ${args[5] || ''}`;
+        line = line.trim();
+        app.context.logger.info(line);
     }));
     
     app.use(cors());
