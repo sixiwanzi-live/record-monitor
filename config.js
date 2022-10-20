@@ -5,7 +5,7 @@ export default {
     },
     blrec: {
         limit: {
-            upload: 2 // 单位MBps
+            upload: 10 // 单位MBps
         },
         whitelist: [
             {
