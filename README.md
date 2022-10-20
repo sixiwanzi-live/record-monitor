@@ -1,7 +1,7 @@
 # record-monitor
-监控录播是否结束，并转移到相应的OneDrive文件夹
+基于blrec的webhook程序，监控录播是否结束，使用ffmpeg将录播文件从flv格式转码到mp4（含faststart），并自动上传到相应的OneDrive文件夹。
 
-# 配置步骤（仅Linux x86_64）
+# 配置步骤（仅Linux x86_64，推荐redhat系列）
 
 ## 安装`node`
 
@@ -105,6 +105,7 @@ $ unzip main.zip
 ### 3. 配置
 ```
 $ cd record-monitor-main
+$ npm install     # 安装依赖项
 $ vim config.js
 ```
 配置文件如下
@@ -116,19 +117,25 @@ export default {
     },
     blrec: {
         limit: {
-            upload: 3
+            upload: 3 // 单位MBps
+        },
+        dst: {
+            datePrefix: true // 是否在上传的文件加上年月前缀，例如2022.10/{你的文件名}
         },
         whitelist: [
             {
-                // 3号直播间，用于测试
-                roomId: 23058,
-                remoteDst: 'sp9:/test'
+                dir: 'sp7',
+                rooms: [25061813]
+            },
+            {
+                dir: 'sp9',
+                rooms: [23058]
             }
         ]
     }
 }
 ```
-其中，`port`是你启动的端口号，`blrec.limit.upload`为上传速度限制，3表示3MB/s，whitelist表示你需要上传到OneDrive的录播，`roomId`为直播间号（不能是短号）,`remoteDst`为远程OneDrive的Section地址。
+其中，`port`是你启动的端口号，`blrec.limit.upload`为上传速度限制，3表示3MB/s，`whitelist`表示你需要上传到OneDrive的录播源信息，`dir`为不同文件夹，`rooms`为某文件夹下的全部直播间号（不能是短号）,`datePrefix`指是否需要将文件上传到按年月划分的文件夹，如果datePrefix=true，那么最终文件会上传到`dir/{nickname}/{Year}.{Month}/`文件夹。
 
 ### 4. 启动
 
