@@ -1,6 +1,7 @@
 import { stat, rename } from 'fs/promises';
 import { spawn, exec } from 'child_process';
 import config from './config.js';
+import BiliApi from './BiliApi.js';
 
 export default class BlrecService {
 
@@ -14,16 +15,23 @@ export default class BlrecService {
         console.log(body);
 
         const type = body.type;
-        if (type === 'LiveBeganEvent') {
-            console.log('直播开始webhook');
-            const name = body.data.user_info.name;
-            const roomId = body.data.room_info.room_id;
-            this.userMap.set(roomId, name);
-        } else if (type === 'VideoPostprocessingCompletedEvent') {
+        if (type === 'VideoPostprocessingCompletedEvent') {
             console.log('视频完成webhook');
             const roomId = body.data.room_id;
             const src = body.data.path;
             console.log(`房间号:${roomId}, 视频文件:${src}`);
+            if (!this.userMap.has(roomId)) {
+                const roomInfo = await BiliApi.getRoomInfo(roomId);
+                if (!roomInfo) {
+                    throw `房间id(${roomId})所属uid没找到`;
+                }
+                const uid = roomInfo.uid;
+                const userInfo = await BiliApi.getUserInfo(uid);
+                if (!userInfo) {
+                    throw `用户id(${uid})所属昵称没找到`;
+                }
+                this.userMap.set(roomId, userInfo.name);
+            }
 
             try {
                 const rooms = config.blrec.whitelist1.filter(item => item.rooms.includes(roomId));
@@ -111,6 +119,18 @@ export default class BlrecService {
             const roomId = body.data.room_id;
             const src = body.data.path;
             console.log(`房间号:${roomId}, 弹幕文件:${src}`);
+            if (!this.userMap.has(roomId)) {
+                const roomInfo = await BiliApi.getRoomInfo(roomId);
+                if (!roomInfo) {
+                    throw `房间id(${roomId})所属uid没找到`;
+                }
+                const uid = roomInfo.uid;
+                const userInfo = await BiliApi.getUserInfo(uid);
+                if (!userInfo) {
+                    throw `用户id(${uid})所属昵称没找到`;
+                }
+                this.userMap.set(roomId, userInfo.name);
+            }
 
             try {
                 const dst = src;
