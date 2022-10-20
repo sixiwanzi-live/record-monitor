@@ -12,7 +12,7 @@ export default {
         },
         whitelist: [
             {
-                dir: 'sp7',
+                dir: 'sp7:',
                 rooms: [25061813]
             },
             {

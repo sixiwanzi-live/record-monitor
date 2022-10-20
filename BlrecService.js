@@ -29,7 +29,7 @@ export default class BlrecService {
                 if (!rooms || rooms.length === 0) {
                     return;
                 }
-                const remoteDst = config.blrec.dst.datePrefix ? `${rooms[0].dir}:/${name}/${date}` : `${rooms[0].dir}:/${name}`;
+                const remoteDst = config.blrec.dst.datePrefix ? `${rooms[0].dir}/${name}/${date}` : `${rooms[0].dir}/${name}`;
                 ctx.logger.info(`远程文件夹:${remoteDst}`);
                 // 确保文件存在
                 const res = await stat(src);
@@ -117,7 +117,7 @@ export default class BlrecService {
                 if (!rooms || rooms.length === 0) {
                     return;
                 }
-                const remoteDst = config.blrec.dst.datePrefix ? `${rooms[0].dir}:/${name}/${date}` : `${rooms[0].dir}:/${name}`;
+                const remoteDst = config.blrec.dst.datePrefix ? `${rooms[0].dir}/${name}/${date}` : `${rooms[0].dir}/${name}`;
                 ctx.logger.info(`远程文件夹:${remoteDst}`);
                 // 确保文件存在
                 const res = await stat(dst);
