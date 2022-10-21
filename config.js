@@ -7,16 +7,17 @@ export default {
         limit: {
             upload: 10 // 单位MBps
         },
-        dst: {
-            datePrefix: true // 是否在上传的文件加上年月前缀，例如2022.10/{你的文件名}
-        },
         whitelist: [
             {
-                dir: 'sp7:',
+                dir: 'sp7',
+                dateDir: true, // 是否增加一层YYYY.MM格式的文件夹，如果为true，则上传的文件路径为2022.10/{原文件名}
+                nameDir: true, // 是否增加一层主播昵称的文件夹，如果为true，则上传的文件路径为{昵称}/{原文件名}, 如果dateDir也为true，则文件路径为{昵称}/2022.10/{原文件名}
                 rooms: [25061813]
             },
             {
-                dir: '',
+                dir: 'sxwz',
+                dateDir: true,
+                nameDir: false,
                 rooms: [23058]
             }
         ]

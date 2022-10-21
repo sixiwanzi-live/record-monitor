@@ -20,7 +20,7 @@ export default class BlrecService {
             ctx.logger.info('视频处理完成webhook');
             const roomId = body.data.room_id;
             const src = body.data.path;
-            const name = this.userMap.has(roomId) ? this.userMap.get(roomId) : 'resource';
+            const name = this.userMap.has(roomId) ? this.userMap.get(roomId) : '昵称未识别';
             const date = this.openMap.has(roomId) ? moment(this.openMap.get(roomId)).format('YYYY.MM') : '年月未识别';
             ctx.logger.info(`房间号:${roomId}, 用户:${name}, 开播时间:${date}, 视频文件:${src}`);
 
@@ -29,7 +29,10 @@ export default class BlrecService {
                 if (!rooms || rooms.length === 0) {
                     return;
                 }
-                const remoteDst = config.blrec.dst.datePrefix ? `${rooms[0].dir}/${name}/${date}` : `${rooms[0].dir}/${name}`;
+                // 创建remoteDst
+                let remoteDst = `${rooms[0].dir}:`;
+                if (rooms[0].nameDir) remoteDst = `${remoteDst}/${name}`;
+                if (rooms[0].dateDir) remoteDst = `${remoteDst}/${date}`;
                 ctx.logger.info(`远程文件夹:${remoteDst}`);
                 // 确保文件存在
                 const res = await stat(src);
@@ -107,7 +110,7 @@ export default class BlrecService {
             ctx.logger.info('弹幕完成webhook');
             const roomId = body.data.room_id;
             const src = body.data.path;
-            const name = this.userMap.has(roomId) ? this.userMap.get(roomId) : 'resource';
+            const name = this.userMap.has(roomId) ? this.userMap.get(roomId) : '昵称未识别';
             const date = this.openMap.has(roomId) ? moment(this.openMap.get(roomId)).format('YYYY.MM') : '年月未识别';
             ctx.logger.info(`房间号:${roomId}, 用户:${name}, 开播时间:${date}, 视频文件:${src}`);
 
@@ -117,7 +120,10 @@ export default class BlrecService {
                 if (!rooms || rooms.length === 0) {
                     return;
                 }
-                const remoteDst = config.blrec.dst.datePrefix ? `${rooms[0].dir}/${name}/${date}` : `${rooms[0].dir}/${name}`;
+                // 创建remoteDst
+                let remoteDst = `${rooms[0].dir}:`;
+                if (rooms[0].nameDir) remoteDst = `${remoteDst}/${name}`;
+                if (rooms[0].dateDir) remoteDst = `${remoteDst}/${date}`;
                 ctx.logger.info(`远程文件夹:${remoteDst}`);
                 // 确保文件存在
                 const res = await stat(dst);
