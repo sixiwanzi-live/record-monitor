@@ -30,14 +30,13 @@ export default class BlrecService {
                     return;
                 }
                 // 创建remoteDst
-                let remoteDsts = rooms[0].dirs;
-                for (let i = 0; i < remoteDsts.length; ++i) {
-                    let remoteDst = remoteDsts[i];
-                    remoteDst = `${remoteDst}:`;
+                const remoteDsts = rooms[0].dirs.map(dir => {
+                    let remoteDst = `${dir}:`;
                     if (rooms[0].hasNameDir) remoteDst = `${remoteDst}/${name}`;
                     if (rooms[0].hasDateDir) remoteDst = `${remoteDst}/${date}`;
                     ctx.logger.info(`远程文件夹${i}:${remoteDst}`);
-                }                
+                    return remoteDst;
+                });
                 // 确保文件存在
                 const res = await stat(src);
                 if (res.size <= 0) {
@@ -127,14 +126,13 @@ export default class BlrecService {
                     return;
                 }
                 // 创建remoteDst
-                let remoteDsts = rooms[0].dirs;
-                for (let i = 0; i < remoteDsts.length; ++i) {
-                    let remoteDst = remoteDsts[i];
-                    remoteDst = `${remoteDst}:`;
+                const remoteDsts = rooms[0].dirs.map(dir => {
+                    let remoteDst = `${dir}:`;
                     if (rooms[0].hasNameDir) remoteDst = `${remoteDst}/${name}`;
                     if (rooms[0].hasDateDir) remoteDst = `${remoteDst}/${date}`;
                     ctx.logger.info(`远程文件夹${i}:${remoteDst}`);
-                }                   
+                    return remoteDst;
+                });
                 // 确保文件存在
                 const res = await stat(dst);
                 if (res.size <= 0) {
