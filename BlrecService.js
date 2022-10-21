@@ -93,7 +93,7 @@ export default class BlrecService {
                                     ctx.logger.info('stderr: ' + data.toString());
                                 });
                                 p.on('close', (code) => {
-                                    ctx.logger.info(`rclone上传结束:${dst}, code:${code}`);
+                                    ctx.logger.info(`rclone上传结束:${dst}, ${remoteDst}, code:${code}`);
                                     res();
                                 });
                                 p.on('error', (error) => {
@@ -155,7 +155,7 @@ export default class BlrecService {
                             ctx.logger.info('stderr: ' + data.toString());
                         });
                         p.on('close', (code) => {
-                            ctx.logger.info(`rclone上传结束:${dst}, code:${code}`);
+                            ctx.logger.info(`rclone上传结束:${dst}, ${remoteDst}, code:${code}`);
                             res();
                         });
                         p.on('error', (error) => {
