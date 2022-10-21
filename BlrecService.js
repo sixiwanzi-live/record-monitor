@@ -30,12 +30,13 @@ export default class BlrecService {
                     return;
                 }
                 // 创建remoteDst
-                let remoteDst = rooms[0].dir;
-                for (let i = 0; i < remoteDst.length; ++i) {
-                    remoteDst[i] = `${remoteDst[i]}:`;
-                    if (rooms[0].nameDir) remoteDst[i] = `${remoteDst[i]}/${name}`;
-                    if (rooms[0].dateDir) remoteDst[i] = `${remoteDst[i]}/${date}`;
-                    ctx.logger.info(`远程文件夹${i}:${remoteDst[i]}`);
+                let remoteDsts = rooms[0].dirs;
+                for (let i = 0; i < remoteDsts.length; ++i) {
+                    let remoteDst = remoteDsts[i];
+                    remoteDst = `${remoteDst}:`;
+                    if (rooms[0].hasNameDir) remoteDst = `${remoteDst}/${name}`;
+                    if (rooms[0].hasDateDir) remoteDst = `${remoteDst}/${date}`;
+                    ctx.logger.info(`远程文件夹${i}:${remoteDst}`);
                 }                
                 // 确保文件存在
                 const res = await stat(src);
@@ -77,7 +78,7 @@ export default class BlrecService {
                         this.busy = true;
                         clearInterval(timer);
                         // 上传转码后mp4
-                        let tasks = remoteDst.map(dst => {
+                        let tasks = remoteDsts.map(remoteDst => {
                             return new Promise((res, rej) => {
                                 let cmd = [
                                     'move', `${dst}`,
@@ -126,37 +127,44 @@ export default class BlrecService {
                     return;
                 }
                 // 创建remoteDst
-                let remoteDst = `${rooms[0].dir}:`;
-                if (rooms[0].nameDir) remoteDst = `${remoteDst}/${name}`;
-                if (rooms[0].dateDir) remoteDst = `${remoteDst}/${date}`;
-                ctx.logger.info(`远程文件夹:${remoteDst}`);
+                let remoteDsts = rooms[0].dirs;
+                for (let i = 0; i < remoteDsts.length; ++i) {
+                    let remoteDst = remoteDsts[i];
+                    remoteDst = `${remoteDst}:`;
+                    if (rooms[0].hasNameDir) remoteDst = `${remoteDst}/${name}`;
+                    if (rooms[0].hasDateDir) remoteDst = `${remoteDst}/${date}`;
+                    ctx.logger.info(`远程文件夹${i}:${remoteDst}`);
+                }                   
                 // 确保文件存在
                 const res = await stat(dst);
                 if (res.size <= 0) {
                     throw '文件大小为0';
                 }
                 // 上传弹幕
-                await new Promise((res, rej) => {
-                    let cmd = [
-                        'copy', dst,
-                        remoteDst
-                    ];
-                    let p = spawn('rclone', cmd);
-                    p.stdout.on('data', (data) => {
-                        ctx.logger.info('stdout: ' + data.toString());
-                    });
-                    p.stderr.on('data', (data) => {
-                        ctx.logger.info('stderr: ' + data.toString());
-                    });
-                    p.on('close', (code) => {
-                        ctx.logger.info(`rclone上传结束:${dst}, code:${code}`);
-                        res();
-                    });
-                    p.on('error', (error) => {
-                        ctx.logger.error(`错误码:${error}`);       
-                        rej(error);
+                let tasks = remoteDsts.map(remoteDst => {
+                    return new Promise((res, rej) => {
+                        let cmd = [
+                            'move', dst,
+                            remoteDst
+                        ];
+                        let p = spawn('rclone', cmd);
+                        p.stdout.on('data', (data) => {
+                            ctx.logger.info('stdout: ' + data.toString());
+                        });
+                        p.stderr.on('data', (data) => {
+                            ctx.logger.info('stderr: ' + data.toString());
+                        });
+                        p.on('close', (code) => {
+                            ctx.logger.info(`rclone上传结束:${dst}, code:${code}`);
+                            res();
+                        });
+                        p.on('error', (error) => {
+                            ctx.logger.error(`错误码:${error}`);       
+                            rej(error);
+                        });
                     });
                 });
+                await Promise.all(tasks);
             } catch (ex) {
                 ctx.logger.error(`Exception: ${ex}`);
                 return ex;
