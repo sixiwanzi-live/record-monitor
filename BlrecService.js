@@ -30,10 +30,10 @@ export default class BlrecService {
                     return;
                 }
                 // 创建remoteDst
-                const remoteDsts = rooms[0].dirs.map(dir => {
-                    let remoteDst = `${dir}:`;
-                    if (rooms[0].hasNameDir) remoteDst = `${remoteDst}/${name}`;
-                    if (rooms[0].hasDateDir) remoteDst = `${remoteDst}/${date}`;
+                const remoteDsts = rooms.map(room => {
+                    let remoteDst = `${room.remote}:`;
+                    if (room.hasNameDir) remoteDst = `${remoteDst}/${name}`;
+                    if (room.hasDateDir) remoteDst = `${remoteDst}/${date}`;
                     ctx.logger.info(`远程文件夹:${remoteDst}`);
                     return remoteDst;
                 });
@@ -106,7 +106,8 @@ export default class BlrecService {
                             });
                         });
                         await Promise.all(tasks);
-                        if (rooms[0].autoRemove) {
+                        if (config.blrec.autoRemove) {
+                            // 如果上传成功，则删除blrec生成的所有原始文件
                             await unlink(src);
                             await unlink(`${src}.meta.json`);
                             await unlink(dst);
@@ -135,10 +136,10 @@ export default class BlrecService {
                     return;
                 }
                 // 创建remoteDst
-                const remoteDsts = rooms[0].dirs.map(dir => {
-                    let remoteDst = `${dir}:`;
-                    if (rooms[0].hasNameDir) remoteDst = `${remoteDst}/${name}`;
-                    if (rooms[0].hasDateDir) remoteDst = `${remoteDst}/${date}`;
+                const remoteDsts = rooms.map(room => {
+                    let remoteDst = `${room.remote}:`;
+                    if (room.hasNameDir) remoteDst = `${remoteDst}/${name}`;
+                    if (room.hasDateDir) remoteDst = `${remoteDst}/${date}`;
                     ctx.logger.info(`远程文件夹:${remoteDst}`);
                     return remoteDst;
                 });
@@ -176,7 +177,7 @@ export default class BlrecService {
                     });
                 });
                 await Promise.all(tasks);
-                if (rooms[0].autoRemove) {
+                if (config.blrec.autoRemove) {
                     await unlink(dst);
                 }
             } catch (ex) {
