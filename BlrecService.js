@@ -34,7 +34,7 @@ export default class BlrecService {
                     let remoteDst = `${dir}:`;
                     if (rooms[0].hasNameDir) remoteDst = `${remoteDst}/${name}`;
                     if (rooms[0].hasDateDir) remoteDst = `${remoteDst}/${date}`;
-                    ctx.logger.info(`远程文件夹${i}:${remoteDst}`);
+                    ctx.logger.info(`远程文件夹:${remoteDst}`);
                     return remoteDst;
                 });
                 // 确保文件存在
@@ -130,7 +130,7 @@ export default class BlrecService {
                     let remoteDst = `${dir}:`;
                     if (rooms[0].hasNameDir) remoteDst = `${remoteDst}/${name}`;
                     if (rooms[0].hasDateDir) remoteDst = `${remoteDst}/${date}`;
-                    ctx.logger.info(`远程文件夹${i}:${remoteDst}`);
+                    ctx.logger.info(`远程文件夹:${remoteDst}`);
                     return remoteDst;
                 });
                 // 确保文件存在
