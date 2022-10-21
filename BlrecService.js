@@ -80,7 +80,7 @@ export default class BlrecService {
                         let tasks = remoteDsts.map(remoteDst => {
                             return new Promise((res, rej) => {
                                 let cmd = [
-                                    'move', `${dst}`,
+                                    'copy', `${dst}`,
                                     `${remoteDst}`,
                                     '-P', '--bwlimit', `${config.blrec.limit.upload}M`
                                 ];
@@ -142,7 +142,7 @@ export default class BlrecService {
                 let tasks = remoteDsts.map(remoteDst => {
                     return new Promise((res, rej) => {
                         let cmd = [
-                            'move', dst,
+                            'copy', dst,
                             remoteDst
                         ];
                         let p = spawn('rclone', cmd);
