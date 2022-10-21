@@ -1,4 +1,4 @@
-import { stat } from 'fs/promises';
+import { stat, unlink } from 'fs/promises';
 import { spawn } from 'child_process';
 import moment from 'moment';
 import config from './config.js';
@@ -6,7 +6,7 @@ import config from './config.js';
 export default class BlrecService {
 
     constructor() {
-        this.busy = false;
+        // this.busy = false;
         this.userMap = new Map();
         this.openMap = new Map();
     }
@@ -73,8 +73,8 @@ export default class BlrecService {
 
                 const timer = setInterval(async () => {
                     try {
-                        if (this.busy) return;
-                        this.busy = true;
+                        // if (this.busy) return;
+                        // this.busy = true;
                         clearInterval(timer);
                         // 上传转码后mp4
                         let tasks = remoteDsts.map(remoteDst => {
@@ -93,7 +93,11 @@ export default class BlrecService {
                                 });
                                 p.on('close', (code) => {
                                     ctx.logger.info(`rclone上传结束:${dst}, ${remoteDst}, code:${code}`);
-                                    res();
+                                    if (code === 0) {
+                                        res();
+                                    } else {
+                                        rej(code);
+                                    }
                                 });
                                 p.on('error', (error) => {
                                     ctx.logger.error(`错误码:${error}`);                                
@@ -102,7 +106,12 @@ export default class BlrecService {
                             });
                         });
                         await Promise.all(tasks);
-                        this.busy = false;
+                        if (rooms[0].autoRemove) {
+                            await unlink(src);
+                            await unlink(`${src}.meta.json`);
+                            await unlink(dst);
+                        }
+                        // this.busy = false;
                     } catch (ex) {
                         ctx.logger.error(`Exception: ${ex}`);
                     }
@@ -154,7 +163,11 @@ export default class BlrecService {
                         });
                         p.on('close', (code) => {
                             ctx.logger.info(`rclone上传结束:${dst}, ${remoteDst}, code:${code}`);
-                            res();
+                            if (code === 0) {
+                                res();
+                            } else {
+                                rej();
+                            }
                         });
                         p.on('error', (error) => {
                             ctx.logger.error(`错误码:${error}`);       
@@ -163,6 +176,9 @@ export default class BlrecService {
                     });
                 });
                 await Promise.all(tasks);
+                if (rooms[0].autoRemove) {
+                    await unlink(dst);
+                }
             } catch (ex) {
                 ctx.logger.error(`Exception: ${ex}`);
                 return ex;
