@@ -30,10 +30,13 @@ export default class BlrecService {
                     return;
                 }
                 // 创建remoteDst
-                let remoteDst = `${rooms[0].dir}:`;
-                if (rooms[0].nameDir) remoteDst = `${remoteDst}/${name}`;
-                if (rooms[0].dateDir) remoteDst = `${remoteDst}/${date}`;
-                ctx.logger.info(`远程文件夹:${remoteDst}`);
+                let remoteDst = rooms[0].dir;
+                for (let i = 0; i < remoteDst.length; ++i) {
+                    remoteDst[i] = `${remoteDst[i]}:`;
+                    if (rooms[0].nameDir) remoteDst[i] = `${remoteDst[i]}/${name}`;
+                    if (rooms[0].dateDir) remoteDst[i] = `${remoteDst[i]}/${date}`;
+                    ctx.logger.info(`远程文件夹${i}:${remoteDst[i]}`);
+                }                
                 // 确保文件存在
                 const res = await stat(src);
                 if (res.size <= 0) {
@@ -74,30 +77,32 @@ export default class BlrecService {
                         this.busy = true;
                         clearInterval(timer);
                         // 上传转码后mp4
-                        await new Promise((res, rej) => {
-                            let cmd = [
-                                'move', `${dst}`,
-                                `${remoteDst}`,
-                                '-P', '--bwlimit', `${config.blrec.limit.upload}M`
-                            ];
-                            let p = spawn('rclone', cmd);
-                            p.stdout.on('data', (data) => {
-                                ctx.logger.info('stdout: ' + data.toString());
-                            });
-                            p.stderr.on('data', (data) => {
-                                ctx.logger.info('stderr: ' + data.toString());
-                            });
-                            p.on('close', (code) => {
-                                this.busy = false;
-                                ctx.logger.info(`rclone上传结束:${dst}, code:${code}`);
-                                res();
-                            });
-                            p.on('error', (error) => {
-                                this.busy = false;
-                                ctx.logger.error(`错误码:${error}`);                                
-                                rej(error);
+                        let tasks = remoteDst.map(dst => {
+                            return new Promise((res, rej) => {
+                                let cmd = [
+                                    'move', `${dst}`,
+                                    `${remoteDst}`,
+                                    '-P', '--bwlimit', `${config.blrec.limit.upload}M`
+                                ];
+                                let p = spawn('rclone', cmd);
+                                p.stdout.on('data', (data) => {
+                                    ctx.logger.info('stdout: ' + data.toString());
+                                });
+                                p.stderr.on('data', (data) => {
+                                    ctx.logger.info('stderr: ' + data.toString());
+                                });
+                                p.on('close', (code) => {
+                                    ctx.logger.info(`rclone上传结束:${dst}, code:${code}`);
+                                    res();
+                                });
+                                p.on('error', (error) => {
+                                    ctx.logger.error(`错误码:${error}`);                                
+                                    rej(error);
+                                });
                             });
                         });
+                        await Promise.all(tasks);
+                        this.busy = false;
                     } catch (ex) {
                         ctx.logger.error(`Exception: ${ex}`);
                     }

@@ -9,17 +9,17 @@ export default {
         },
         whitelist: [
             {
-                dir: 'sp7',
+                dir: ['sp7'],  // 可以配置多个，这样就同时往多个od文件夹上传
                 dateDir: true, // 是否增加一层YYYY.MM格式的文件夹，如果为true，则上传的文件路径为2022.10/{原文件名}
                 nameDir: true, // 是否增加一层主播昵称的文件夹，如果为true，则上传的文件路径为{昵称}/{原文件名}, 如果dateDir也为true，则文件路径为{昵称}/2022.10/{原文件名}
                 rooms: [25061813]
             },
             {
-                dir: 'sxwz',
+                dir: ['sxwz', 'sp7'],
                 dateDir: true,
-                nameDir: false,
+                nameDir: true,
                 rooms: [23058]
             }
         ]
-    }
+    }/*  */
 }
