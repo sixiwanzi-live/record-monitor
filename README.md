@@ -113,29 +113,42 @@ $ vim config.js
 export default {
     web: {
         port: 5000,
-        bodyLimit: 10 * 1024 * 1024
+        bodyLimit: 4 * 1024
     },
     blrec: {
         limit: {
-            upload: 3 // 单位MBps
-        },
-        dst: {
-            datePrefix: true // 是否在上传的文件加上年月前缀，例如2022.10/{你的文件名}
+            upload: 10 // 单位MBps
         },
         whitelist: [
             {
-                dir: 'sp7',
-                rooms: [25061813]
+                remote: 'sp7', 
+                hasDateDir: true,        // 是否增加一层YYYY.MM格式的文件夹，如果为true，则上传的文件路径为2022.10/{原文件名}
+                hasNameDir: true,        // 是否增加一层主播昵称的文件夹，如果为true，则上传的文件路径为{昵称}/{原文件名}, 如果dateDir也为true，则文件路径为{昵称}/2022.10/{原文件名}
+                rooms: [25061813, 23058] // 直播间号可以在不同的remote之间重复
             },
             {
-                dir: 'sp9',
+                remote: 'sxwz',
+                hasDateDir: true,
+                hasNameDir: false,
                 rooms: [23058]
             }
-        ]
+        ],
+        autoRemove: true // 是否在上传完成后自动删除
     }
 }
 ```
-其中，`port`是你启动的端口号，`blrec.limit.upload`为上传速度限制，3表示3MB/s，`whitelist`表示你需要上传到OneDrive的录播源信息，`dir`为不同文件夹，`rooms`为某文件夹下的全部直播间号（不能是短号）,`datePrefix`指是否需要将文件上传到按年月划分的文件夹，如果datePrefix=true，那么最终文件会上传到`dir/{nickname}/{Year}.{Month}/`文件夹。
+|配置项|含义|
+|--|--|
+|`web.port`|服务启动的端口号|
+|`blrec.limit.upload`|上传速度限制，10表示10MB/s|
+|`whitelist`|需要上传到OneDrive的录播源信息，数组形式|
+|`whitelist[i].remote`|远程根文件夹|
+|`whitelist[i].hasDateDir`|为true，会在remote中生成一个`{Year}.{Month}`格式的新文件夹，最终文件会上传到`{remote}/{Year}.{Month}/`文件夹|
+|`whitelist[i].hasNameDir`|为true，会在remote中生成一个`{name}`格式的新文件夹，最终文件会上传到`{remote}/{name}/`文件夹，如果`hasDateDir`和`hasNameDir`同时启用，则最终文件夹会是`{remote}/{name}/{Year}.{Month}/`|
+|`whitelist[i].rooms`|需要保存到某remote下的全部直播间号（不能是短号），roomId可以存在于多个remote中|
+|`whitelist.autoRemove`|为true，将会在文件上传完毕后删除本地磁盘上的所有原始录播文件，未经完整测试，请谨慎开启。|
+
+PS: 主播昵称和开播时间是依照blrec的LiveBeganEvent事件获取，也就是说，如果你是直播中途才打开本服务，或者因为意外情况没有获取到LiveBeganEvent事件，`name`会默认为`昵称未识别`，`{Year}.{Month}`会默认为`日期未识别`
 
 ### 4. 启动
 

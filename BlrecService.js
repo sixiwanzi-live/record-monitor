@@ -21,7 +21,7 @@ export default class BlrecService {
             const roomId = body.data.room_id;
             const src = body.data.path;
             const name = this.userMap.has(roomId) ? this.userMap.get(roomId) : '昵称未识别';
-            const date = this.openMap.has(roomId) ? moment(this.openMap.get(roomId)).format('YYYY.MM') : '年月未识别';
+            const date = this.openMap.has(roomId) ? moment(this.openMap.get(roomId)).format('YYYY.MM') : '日期未识别';
             ctx.logger.info(`房间号:${roomId}, 用户:${name}, 开播时间:${date}, 视频文件:${src}`);
 
             try {
@@ -126,7 +126,7 @@ export default class BlrecService {
             const roomId = body.data.room_id;
             const src = body.data.path;
             const name = this.userMap.has(roomId) ? this.userMap.get(roomId) : '昵称未识别';
-            const date = this.openMap.has(roomId) ? moment(this.openMap.get(roomId)).format('YYYY.MM') : '年月未识别';
+            const date = this.openMap.has(roomId) ? moment(this.openMap.get(roomId)).format('YYYY.MM') : '日期未识别';
             ctx.logger.info(`房间号:${roomId}, 用户:${name}, 开播时间:${date}, 视频文件:${src}`);
 
             try {
