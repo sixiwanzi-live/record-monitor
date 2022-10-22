@@ -188,10 +188,10 @@ export default class BlrecService {
             ctx.logger.info('开播webhook');
             const roomId = body.data.room_info.room_id;
             const name = body.data.user_info.name;
-            const time = body.data.room_info.live_start_time;
-            ctx.logger.info(`房间号:${roomId}, 用户:${name}, 开播时间:${moment(time).format("YYYY-MM-DD HH:MM:SS")}`);
+            const timestamp = body.data.room_info.live_start_time * 1000;
+            ctx.logger.info(`房间号:${roomId}, 用户:${name}, 开播时间:${moment(timestamp).format("YYYY-MM-DD HH:mm:ss")}`);
             this.userMap.set(roomId, name);
-            this.openMap.set(roomId, time);
+            this.openMap.set(roomId, timestamp);
         }
     }
 }

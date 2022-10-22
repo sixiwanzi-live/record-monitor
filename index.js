@@ -6,6 +6,7 @@ import logger from 'koa-logger';
 import pino from 'pino';
 import config from './config.js';
 import BlrecService from './BlrecService.js';
+import moment from 'moment';
 
 (async () => {
     const app = new Koa({ proxy: true });
