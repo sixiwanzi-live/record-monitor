@@ -105,3 +105,4 @@ dist
 
 # Project
 config.js
+package-lock.json

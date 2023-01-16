@@ -5,7 +5,6 @@ import koaBody from 'koa-body';
 import logger from 'koa-logger';
 import pino from 'pino';
 import config from './config.js';
-import BlrecService from './BlrecService.js';
 import BililiveService from './BililiveService.js';
 
 (async () => {
@@ -13,7 +12,6 @@ import BililiveService from './BililiveService.js';
     const router = new Router();
 
     app.context.logger = pino({ transport: { target: 'pino-pretty' } });
-    app.context.blrecService = new BlrecService();
     app.context.bililiveService = new BililiveService();
     
     /**
