@@ -1,4 +1,5 @@
 import { spawn } from 'child_process';
+import config from './config.js';
 import BiliApi from './api/BiliApi.js';
 import ZimuApi from './api/ZimuApi.js';
 import PushApi from './api/PushApi.js';
@@ -43,7 +44,7 @@ export default class BililiveService {
             const name = body.EventData.Name;
             const title = body.EventData.Title;
             const duration = body.EventData.Duration;
-            const relativePath = body.EventData.RelativePath;
+            const path = `${config.rec.root}/${body.EventData.RelativePath}`;
             const clipId = this.roomMap.get(roomId);
             if (duration < 10 * 60) {
                 this.roomMap.set(roomId, null);
@@ -56,10 +57,10 @@ export default class BililiveService {
                 await PushApi.push('录制结束', `${name},${title}${duration}`);
                 new Promise((res, rej) => {
                     const cmd = [
-                        '-i', relativePath,
+                        '-i', path,
                         '-c', 'copy',
                         '-movflags', 'faststart',
-                        relativePath.replace('.flv', '.mp4')
+                        path.replace('.flv', '.mp4')
                     ];
                     let p = spawn('ffmpeg', cmd);
                     p.stdout.on('data', (data) => {
