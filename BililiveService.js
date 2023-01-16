@@ -46,7 +46,7 @@ export default class BililiveService {
             const duration = body.EventData.Duration;
             const path = `${config.rec.root}/${body.EventData.RelativePath}`;
             const clipId = this.roomMap.get(roomId);
-            if (duration < 10 * 60) {
+            if (duration < 1 * 60) {
                 this.roomMap.set(roomId, null);
                 if (clipId) {
                     ctx.logger.info(`时间过短:${name},${title},${duration}`);
