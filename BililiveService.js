@@ -48,11 +48,12 @@ export default class BililiveService {
             if (duration < 10 * 60) {
                 this.roomMap.set(roomId, null);
                 if (clipId) {
+                    ctx.logger.info(`时间过短:${name},${title},${duration}`);
                     await ZimuApi.deleteClip(clipId);
                     await PushApi.push('时间过短', `${name},${title},${duration}`);
                 }
             } else {
-                await PushApi.push('录制结束', `${name},${title}`);
+                await PushApi.push('录制结束', `${name},${title}${duration}`);
                 new Promise((res, rej) => {
                     const cmd = [
                         '-i', relativePath,
