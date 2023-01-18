@@ -55,56 +55,56 @@ export default class BililiveService {
                 }
             } else {
                 await PushApi.push('录制结束', `${name},${title}${duration}`);
-                // flv 转 mp4
-                new Promise((res, rej) => {
-                    const cmd = [
-                        '-i', path,
-                        '-c', 'copy',
-                        '-movflags', 'faststart',
-                        path.replace('.flv', '.mp4')
-                    ];
-                    let p = spawn('ffmpeg', cmd);
-                    p.stdout.on('data', (data) => {
-                        ctx.logger.info('stdout: ' + data.toString());
-                    });
-                    p.stderr.on('data', (data) => {
-                        ctx.logger.info('stderr: ' + data.toString());
-                    });
-                    p.on('close', (code) => {
-                        ctx.logger.info(`flv转mp4结束,ffmpeg退出:code:${code}`);
-                        ZimuApi.updateClip(clipId, {
-                            type: 3
-                        });
-                        res();
-                    });
-                    p.on('error', (error) => {
-                        rej(error);
-                    });
-                });
-                // flv 转 m4a
-                new Promise((res, rej) => {
-                    const cmd = [
-                        '-i', path,
-                        '-vn',
-                        '-codec', 'copy',
-                        path.replace('.flv', '.m4a')
-                    ];
-                    let p = spawn('ffmpeg', cmd);
-                    p.stdout.on('data', (data) => {
-                        ctx.logger.info('stdout: ' + data.toString());
-                    });
-                    p.stderr.on('data', (data) => {
-                        ctx.logger.info('stderr: ' + data.toString());
-                    });
-                    p.on('close', (code) => {
-                        ctx.logger.info(`flv转m4a结束,ffmpeg退出:code:${code}`);
-                        res();
-                    });
-                    p.on('error', (error) => {
-                        rej(error);
-                    });
-                });
             }
+            // flv 转 mp4
+            new Promise((res, rej) => {
+                const cmd = [
+                    '-i', path,
+                    '-c', 'copy',
+                    '-movflags', 'faststart',
+                    path.replace('.flv', '.mp4')
+                ];
+                let p = spawn('ffmpeg', cmd);
+                p.stdout.on('data', (data) => {
+                    ctx.logger.info('stdout: ' + data.toString());
+                });
+                p.stderr.on('data', (data) => {
+                    ctx.logger.info('stderr: ' + data.toString());
+                });
+                p.on('close', (code) => {
+                    ctx.logger.info(`flv转mp4结束,ffmpeg退出:code:${code}`);
+                    ZimuApi.updateClip(clipId, {
+                        type: 3
+                    });
+                    res();
+                });
+                p.on('error', (error) => {
+                    rej(error);
+                });
+            });
+            // flv 转 m4a
+            new Promise((res, rej) => {
+                const cmd = [
+                    '-i', path,
+                    '-vn',
+                    '-codec', 'copy',
+                    path.replace('.flv', '.m4a')
+                ];
+                let p = spawn('ffmpeg', cmd);
+                p.stdout.on('data', (data) => {
+                    ctx.logger.info('stdout: ' + data.toString());
+                });
+                p.stderr.on('data', (data) => {
+                    ctx.logger.info('stderr: ' + data.toString());
+                });
+                p.on('close', (code) => {
+                    ctx.logger.info(`flv转m4a结束,ffmpeg退出:code:${code}`);
+                    res();
+                });
+                p.on('error', (error) => {
+                    rej(error);
+                });
+            });
         }
         return {};
     }
