@@ -76,9 +76,10 @@ export default class BililiveService {
                     ctx.logger.info(`flv转mp4结束,ffmpeg退出:code:${code}`);
                     (async () => {
                         try {
-                            await ZimuApi.updateClip(clipId, {
+                            const newClip = await ZimuApi.updateClip(clipId, {
                                 type: 3
                             });
+                            ctx.logger.info(`clip更新后:${newClip}`);
                         } catch (ex) {
                             ctx.logger.error(ex);
                         }
