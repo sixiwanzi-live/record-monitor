@@ -74,9 +74,21 @@ export default class BililiveService {
                 });
                 p.on('close', (code) => {
                     ctx.logger.info(`flv转mp4结束,ffmpeg退出:code:${code}`);
-                    ZimuApi.updateClip(clipId, {
-                        type: 3
-                    });
+                    (async () => {
+                        while (true) {
+                            try {
+                                await ZimuApi.updateClip(clipId, {
+                                    type: 3
+                                });
+                                break;
+                            } catch (ex) {
+                                ctx.logger.error(ex);
+                            }
+                            await new Promise((res, rej) => {
+                                setTimeout(() => {res()}, 2000);
+                            });
+                        }
+                    })();
                     res();
                 });
                 p.on('error', (error) => {
