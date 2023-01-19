@@ -45,6 +45,7 @@ export default class BililiveService {
             const title = body.EventData.Title;
             const duration = body.EventData.Duration;
             const path = `${config.rec.root}/${body.EventData.RelativePath}`;
+
             const clipId = this.roomMap.get(roomId);
             if (duration < 1 * 60) {
                 this.roomMap.set(roomId, null);
