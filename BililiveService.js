@@ -20,7 +20,7 @@ export default class BililiveService {
             const datetime = body.EventData.FileOpenTime.substring(0, 19).replace('T', ' ');
             const roomId = body.EventData.RoomId;
             const name = body.EventData.Name;
-            const title = body.EventData.Title;
+            const title = body.EventData.Title.replaceAll('*', '_'); // 针对某些标题中含有*的情况，为了兼容windows系统文件，将*换成_
 
             const roomInfo = await BiliApi.getRoomInfo(roomId);
             const uid = roomInfo.uid;
@@ -45,8 +45,9 @@ export default class BililiveService {
             const title = body.EventData.Title;
             const duration = body.EventData.Duration;
             const path = `${config.rec.root}/${body.EventData.RelativePath}`;
+
             const clipId = this.roomMap.get(roomId);
-            if (duration < 1 * 60) {
+            if (duration < 10 * 60) {
                 this.roomMap.set(roomId, null);
                 if (clipId) {
                     ctx.logger.info(`时间过短:${name},${title},${duration}`);
@@ -81,6 +82,9 @@ export default class BililiveService {
                 p.on('error', (error) => {
                     rej(error);
                 });
+            }).catch(error => {
+                ctx.logger.error(error);
+                PushApi.push('flv转mp4异常', `${error}`);
             });
             // flv 转 m4a
             new Promise((res, rej) => {
@@ -104,7 +108,10 @@ export default class BililiveService {
                 p.on('error', (error) => {
                     rej(error);
                 });
-            });
+            }).catch(error => {
+                ctx.logger.error(error);
+                PushApi.push('flv转m4a异常', `${error}`);
+            });;
         }
         return {};
     }
