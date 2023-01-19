@@ -26,7 +26,7 @@ export default class BililiveService {
             const uid = roomInfo.uid;
             const cover = roomInfo.user_cover.substring(8);
 
-            await PushApi.push('录制开始', `${name},${title}`);
+            PushApi.push('录制开始', `${name},${title}`);
 
             const clip = {
                 uid:        uid,
@@ -51,10 +51,10 @@ export default class BililiveService {
                 if (clipId) {
                     ctx.logger.info(`时间过短:${name},${title},${duration}`);
                     await ZimuApi.deleteClip(clipId);
-                    await PushApi.push('时间过短', `${name},${title},${duration}`);
+                    PushApi.push('时间过短', `${name},${title},${duration}`);
                 }
             } else {
-                await PushApi.push('录制结束', `${name},${title}${duration}`);
+                PushApi.push('录制结束', `${name},${title}${duration}`);
             }
             // flv 转 mp4
             new Promise((res, rej) => {
