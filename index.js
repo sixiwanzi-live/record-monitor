@@ -63,8 +63,7 @@ import BililiveService from './BililiveService.js';
             } else {
                 ex.message = `${e}`;
             }
-            ctx.body = ex;
-            ctx.status = 200;
+            ctx.status = 204;
         }
     });
     app.use(router.routes());

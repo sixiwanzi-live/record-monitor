@@ -27,7 +27,7 @@ export default class BililiveService {
             const uid = roomInfo.uid;
             const cover = roomInfo.user_cover.substring(8); // 去掉https://
 
-            await PushApi.push('录制开始', `${name},${title}`);
+            PushApi.push('录制开始', `${name},${title}`);
 
             const clip = {
                 uid:        uid,
@@ -53,10 +53,10 @@ export default class BililiveService {
                 if (clipId) {
                     ctx.logger.info(`时间过短:${name},${title},${duration}`);
                     await ZimuApi.deleteClip(clipId);
-                    await PushApi.push('时间过短', `${name},${title},${duration}`);
+                    PushApi.push('时间过短', `${name},${title},${duration}`);
                 }
             } else {
-                await PushApi.push('录制结束', `${name},${title}${duration}`);
+                PushApi.push('录制结束', `${name},${title}${duration}`);
             }
             // flv 转 mp4
             new Promise((res, rej) => {
@@ -75,9 +75,16 @@ export default class BililiveService {
                 });
                 p.on('close', (code) => {
                     ctx.logger.info(`flv转mp4结束,ffmpeg退出:code:${code}`);
-                    ZimuApi.updateClip(clipId, {
-                        type: 3
-                    });
+                    (async () => {
+                        try {
+                            const newClip = await ZimuApi.updateClip(clipId, {
+                                type: 3
+                            });
+                            ctx.logger.info(`clip更新后:${newClip}`);
+                        } catch (ex) {
+                            ctx.logger.error(ex);
+                        }
+                    })();
                     res();
                 });
                 p.on('error', (error) => {
