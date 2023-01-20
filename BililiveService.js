@@ -22,9 +22,10 @@ export default class BililiveService {
             const name = body.EventData.Name;
             const title = body.EventData.Title.replaceAll('*', '_'); // 针对某些标题中含有*的情况，为了兼容windows系统文件，将*换成_
 
+            // 从bilibili获取到直播间基础信息
             const roomInfo = await BiliApi.getRoomInfo(roomId);
             const uid = roomInfo.uid;
-            const cover = roomInfo.user_cover.substring(8);
+            const cover = roomInfo.user_cover.substring(8); // 去掉https://
 
             await PushApi.push('录制开始', `${name},${title}`);
 
