@@ -110,6 +110,9 @@ export default class BililiveService {
                 await ZimuApi.deleteClip(clip.id);
             } else {
                 PushApi.push('录制结束', message);
+                const newClip = await ZimuApi.updateClip(clip.id, { type: 3 });
+                ctx.logger.info('clip更新后:');
+                ctx.logger.info(newClip);
             }
 
             new Promise((res, rej) => {
@@ -121,22 +124,21 @@ export default class BililiveService {
                         await this._toMP4(ctx, flvpath, mp4path);
                         // 复制mp4到od1,od2和待转区
                         await this._cp(mp4path, od1mp4path);
-                        await this._cp(od1mp4path, od2mp4path);
+                        // await this._cp(od1mp4path, od2mp4path);
                         await this._cp(od1mp4path, dstm4apath);
                         // 复制xml到od1和od2
                         await this._cp(xmlpath, od1xmlpath);
-                        await this._cp(od1xmlpath, od2xmlpath);
+                        // await this._cp(od1xmlpath, od2xmlpath);
                         await this._cp(od1xmlpath, dstxmlpath);
                         // 复制m4a到远程地址
                         await this._cp(m4apath, dstm4apath);
                         // 复制flv到远程地址
                         await this._cp(flvpath, dstflvpath);
                         await unlink(flvpath);
-                        const newClip = await ZimuApi.updateClip(clip.id, { type: 3});
-                        ctx.logger.info('clip更新后:');
-                        ctx.logger.info(newClip);
+                        res();
                     } catch (ex) {
                         ctx.logger.error(ex);
+                        rej(ex);
                     }
                 })();
             });
