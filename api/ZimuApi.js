@@ -45,4 +45,9 @@ export default class ZimuApi {
             }
         });
     }
+
+    static async findAuthorById(authorId) {
+        const url = `${config.zimu.url}/authors/${id}`;
+        await fetch(url);
+    }
 }

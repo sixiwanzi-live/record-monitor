@@ -9,6 +9,34 @@ export default class BililiveService {
 
     constructor() {
         this.roomMap = new Map();
+        this.odMap = new Map();
+        this.odMap.set(1, '四禧丸子');
+        this.odMap.set(2, '四禧丸子');
+        this.odMap.set(3, '四禧丸子');
+        this.odMap.set(4, '四禧丸子');
+        this.odMap.set(5, '量子少年');
+        this.odMap.set(6, '量子少年');
+        this.odMap.set(9, 'EOE组合');
+        this.odMap.set(10, 'EOE组合');
+        this.odMap.set(11, 'EOE组合');
+        this.odMap.set(12, 'EOE组合');
+        this.odMap.set(13, 'EOE组合');
+        this.odMap.set(14, 'sp9/明前奶绿');
+        this.odMap.set(15, '星律动');
+        this.odMap.set(16, '星律动');
+        this.odMap.set(17, '星律动');
+        this.odMap.set(18, '量子少年');
+        this.odMap.set(19, '量子少年');
+        this.odMap.set(20, 'sp7/麻尤米mayumi');
+        this.odMap.set(22, 'ASOUL');
+        this.odMap.set(23, 'ASOUL');
+        this.odMap.set(24, 'ASOUL');
+        this.odMap.set(25, 'ASOUL');
+        this.odMap.set(26, 'ASOUL');
+        this.odMap.set(27, '星律动');
+        this.odMap.set(28, '星律动');
+        this.odMap.set(32, 'sp2/星瞳_Official');
+        this.odMap.set(33, '星律动');
     }
 
     webhook = async (ctx) => {
@@ -40,13 +68,19 @@ export default class BililiveService {
             const newClip = await ZimuApi.insertClip(clip);
             ctx.logger.info(`创建新clip:`);
             ctx.logger.info(newClip);
-            this.roomMap.set(roomId, newClip.id);
+            this.roomMap.set(roomId, newClip);
         } else if (type === 'FileClosed') {
             ctx.logger.info('录制结束webhook');
             const roomId = body.EventData.RoomId;
             const name = body.EventData.Name;
             const title = body.EventData.Title;
             const duration = body.EventData.Duration;
+
+            const clip = this.roomMap.get(roomId);
+            this.roomMap.set(roomId, null);
+            if (!clip) return {};
+            if (!this.odMap.has(clip.authorId)) return {};
+            const odPrefix = this.odMap.get(clip.authorId);
 
             // 生成flv，mp4，xml的源和目的文件路径
             const flvname = body.EventData.RelativePath.split('/')[2];
@@ -58,24 +92,22 @@ export default class BililiveService {
             const xmlpath = flvpath.replace('.flv', '.xml');
             const mp4path = flvpath.replace('.flv', '.mp4');
             const m4apath = m4apath.replace('.flv', '.m4a');
-            const od1mp4path = `${config.rec.od1}/${mp4name}`;
-            const od1xmlpath = `${config.rec.od1}/${xmlname}`;
-            const od2mp4path = `${config.rec.od2}/${mp4name}`;
-            const od2xmlpath = `${config.rec.od2}/${xmlname}`;
+            const od1mp4path = `${config.rec.od1}/${odPrefix}/${mp4name}`;
+            const od1xmlpath = `${config.rec.od1}/${odPrefix}/${xmlname}`;
+            const od2mp4path = `${config.rec.od2}/${odPrefix}/${mp4name}`;
+            const od2xmlpath = `${config.rec.od2}/${odPrefix}/${xmlname}`;
             const dstm4apath = `${config.rec.m4a}/${m4aname}`;
             const dstflvpath = `${config.rec.flv}/${flvname}`;
-            ctx.logger.info({flvpath, mp4path, od1mp4path, od1xmlpath, od2mp4path, od2xmlpath});
+            const dstmp4path = `${config.rec.mp4}/${mp4name}`;
+            const dstxmlpath = `${config.rec.mp4}/${xmlname}`;
+            ctx.logger.info({flvpath, mp4path, od1mp4path, od1xmlpath, od2mp4path, od2xmlpath, dstm4apath, dstflvpath, dstmp4path});
 
-            const clipId = this.roomMap.get(roomId);
             const message = `${name},${title},${duration}s`;
-            if (duration < 3 * 60) {
+            if (duration < 2 * 60) {
                 // 如果录制时间过短，则删掉该clip在字幕库中的信息，但是录播文件不删除
-                this.roomMap.set(roomId, null);
-                if (clipId) {
-                    ctx.logger.info(`时间过短:${message}`);
-                    PushApi.push('时间过短', message);
-                    await ZimuApi.deleteClip(clipId);
-                }
+                ctx.logger.info(`时间过短:${message}`);
+                PushApi.push('时间过短', message);
+                await ZimuApi.deleteClip(clip.id);
             } else {
                 PushApi.push('录制结束', message);
             }
@@ -87,18 +119,20 @@ export default class BililiveService {
                         await this._toM4A(ctx, flvpath, m4apath);
                         // flv 转 mp4
                         await this._toMP4(ctx, flvpath, mp4path);
-                        // 复制mp4到od1和od2
+                        // 复制mp4到od1,od2和待转区
                         await this._cp(mp4path, od1mp4path);
                         await this._cp(od1mp4path, od2mp4path);
+                        await this._cp(od1mp4path, dstm4apath);
                         // 复制xml到od1和od2
                         await this._cp(xmlpath, od1xmlpath);
                         await this._cp(od1xmlpath, od2xmlpath);
+                        await this._cp(od1xmlpath, dstxmlpath);
                         // 复制m4a到远程地址
                         await this._cp(m4apath, dstm4apath);
                         // 复制flv到远程地址
                         await this._cp(flvpath, dstflvpath);
                         await unlink(flvpath);
-                        const newClip = await ZimuApi.updateClip(clipId, { type: 3});
+                        const newClip = await ZimuApi.updateClip(clip.id, { type: 3});
                         ctx.logger.info('clip更新后:');
                         ctx.logger.info(newClip);
                     } catch (ex) {
