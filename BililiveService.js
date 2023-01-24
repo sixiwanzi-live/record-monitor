@@ -37,6 +37,7 @@ export default class BililiveService {
                 type:       4
             };
             const newClip = await ZimuApi.insertClip(clip);
+            ctx.logger.info(`创建新clip:`);
             ctx.logger.info(newClip);
             this.roomMap.set(roomId, newClip.id);
         } else if (type === 'FileClosed') {
@@ -45,82 +46,116 @@ export default class BililiveService {
             const name = body.EventData.Name;
             const title = body.EventData.Title;
             const duration = body.EventData.Duration;
-            const path = `${config.rec.root}/${body.EventData.RelativePath}`;
+
+            // 生成flv，mp4，xml的源和目的文件路径
+            const flvname = body.EventData.RelativePath.split('/')[2];
+            const xmlname = flvname.replace('.flv', '.xml');
+            const mp4name = flvname.replace('.flv', '.mp4');
+            const m4aname = flvname.replace('.flv', '.m4a');
+
+            const flvpath = `${config.rec.root}/${body.EventData.RelativePath}`;
+            const mp4path = flvpath.replace('.flv', '.mp4');
+            const m4apath = m4apath.replace('.flv', '.m4a');
+            const od1mp4path = `${config.rec.od1}/${mp4name}`;
+            const od1xmlpath = `${config.rec.od1}/${xmlname}`;
+            const od2mp4path = `${config.rec.od2}/${mp4name}`;
+            const od2xmlpath = `${config.rec.od2}/${xmlname}`;
+            ctx.logger.info({flvpath, mp4path, od1mp4path, od1xmlpath, od2mp4path, od2xmlpath});
 
             const clipId = this.roomMap.get(roomId);
-            if (duration < 10 * 60) {
+            const message = `${name},${title},${duration}s`;
+            if (duration < 3 * 60) {
+                // 如果录制时间过短，则删掉该clip在字幕库中的信息，但是录播文件不删除
                 this.roomMap.set(roomId, null);
                 if (clipId) {
-                    ctx.logger.info(`时间过短:${name},${title},${duration}`);
+                    ctx.logger.info(`时间过短:${message}`);
+                    PushApi.push('时间过短', message);
                     await ZimuApi.deleteClip(clipId);
-                    PushApi.push('时间过短', `${name},${title},${duration}`);
                 }
             } else {
-                PushApi.push('录制结束', `${name},${title}${duration}`);
+                PushApi.push('录制结束', message);
             }
+
+            // flv 转 m4a
+            this._toM4A(ctx, flvpath, m4apath);
+
             // flv 转 mp4
             new Promise((res, rej) => {
-                const cmd = [
-                    '-i', path,
-                    '-c', 'copy',
-                    '-movflags', 'faststart',
-                    path.replace('.flv', '.mp4')
-                ];
-                let p = spawn('ffmpeg', cmd);
-                p.stdout.on('data', (data) => {
-                    ctx.logger.info('stdout: ' + data.toString());
-                });
-                p.stderr.on('data', (data) => {
-                    ctx.logger.info('stderr: ' + data.toString());
-                });
-                p.on('close', (code) => {
-                    ctx.logger.info(`flv转mp4结束,ffmpeg退出:code:${code}`);
-                    (async () => {
-                        try {
-                            const newClip = await ZimuApi.updateClip(clipId, {
-                                type: 3
-                            });
-                            ctx.logger.info(`clip更新后:${newClip}`);
-                        } catch (ex) {
-                            ctx.logger.error(ex);
-                        }
-                    })();
-                    res();
-                });
-                p.on('error', (error) => {
-                    rej(error);
-                });
-            }).catch(error => {
-                ctx.logger.error(error);
-                PushApi.push('flv转mp4异常', `${error}`);
+                (async () => {
+                    try {
+                        await this._toMP4(ctx, flvpath, mp4path);
+                    } catch (ex) {
+                        ctx.logger.error(ex);
+                    }
+                })();
             });
-            // flv 转 m4a
-            new Promise((res, rej) => {
-                const cmd = [
-                    '-i', path,
-                    '-vn',
-                    '-codec', 'copy',
-                    path.replace('.flv', '.m4a')
-                ];
-                let p = spawn('ffmpeg', cmd);
-                p.stdout.on('data', (data) => {
-                    ctx.logger.info('stdout: ' + data.toString());
-                });
-                p.stderr.on('data', (data) => {
-                    ctx.logger.info('stderr: ' + data.toString());
-                });
-                p.on('close', (code) => {
-                    ctx.logger.info(`flv转m4a结束,ffmpeg退出:code:${code}`);
-                    res();
-                });
-                p.on('error', (error) => {
-                    rej(error);
-                });
-            }).catch(error => {
-                ctx.logger.error(error);
-                PushApi.push('flv转m4a异常', `${error}`);
-            });;
+            (async () => {
+                try {
+                    const newClip = await ZimuApi.updateClip(clipId, {
+                        type: 3
+                    });
+                    ctx.logger.info(`clip更新后:${newClip}`);
+                } catch (ex) {
+                    ctx.logger.error(ex);
+                }
+            })();
         }
         return {};
+    }
+
+    _toM4A = async (ctx, flvpath, m4apath) => {
+        return new Promise((res, rej) => {
+            const cmd = [
+                '-i', flvpath,
+                '-vn',
+                '-codec', 'copy',
+                m4apath
+            ];
+            let p = spawn('ffmpeg', cmd);
+            p.stdout.on('data', (data) => {
+                ctx.logger.info('stdout: ' + data.toString());
+            });
+            p.stderr.on('data', (data) => {
+                ctx.logger.info('stderr: ' + data.toString());
+            });
+            p.on('close', (code) => {
+                ctx.logger.info(`flv转m4a结束,ffmpeg退出:code:${code}`);
+                res();
+            });
+            p.on('error', (error) => {
+                rej(error);
+            });
+        }).catch(error => {
+            ctx.logger.error(error);
+            PushApi.push('flv转m4a异常', `${error}`);
+        });
+    }
+
+    _toMP4 = async (ctx, flvpath, mp4path) => {
+        new Promise((res, rej) => {
+            const cmd = [
+                '-i', flvpath,
+                '-c', 'copy',
+                '-movflags', 'faststart',
+                mp4path
+            ];
+            let p = spawn('ffmpeg', cmd);
+            p.stdout.on('data', (data) => {
+                ctx.logger.info('stdout: ' + data.toString());
+            });
+            p.stderr.on('data', (data) => {
+                ctx.logger.info('stderr: ' + data.toString());
+            });
+            p.on('close', (code) => {
+                ctx.logger.info(`flv转mp4结束,ffmpeg退出:code:${code}`);
+                res();
+            });
+            p.on('error', (error) => {
+                rej(error);
+            });
+        }).catch(error => {
+            ctx.logger.error(error);
+            PushApi.push('flv转mp4异常', `${error}`);
+        });
     }
 }
