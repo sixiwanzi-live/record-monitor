@@ -1,4 +1,5 @@
 import { spawn } from 'child_process';
+import { unlink } from 'fs/promises';
 import config from './config.js';
 import BiliApi from './api/BiliApi.js';
 import ZimuApi from './api/ZimuApi.js';
@@ -54,12 +55,15 @@ export default class BililiveService {
             const m4aname = flvname.replace('.flv', '.m4a');
 
             const flvpath = `${config.rec.root}/${body.EventData.RelativePath}`;
+            const xmlpath = flvpath.replace('.flv', '.xml');
             const mp4path = flvpath.replace('.flv', '.mp4');
             const m4apath = m4apath.replace('.flv', '.m4a');
             const od1mp4path = `${config.rec.od1}/${mp4name}`;
             const od1xmlpath = `${config.rec.od1}/${xmlname}`;
             const od2mp4path = `${config.rec.od2}/${mp4name}`;
             const od2xmlpath = `${config.rec.od2}/${xmlname}`;
+            const dstm4apath = `${config.rec.m4a}/${m4aname}`;
+            const dstflvpath = `${config.rec.flv}/${flvname}`;
             ctx.logger.info({flvpath, mp4path, od1mp4path, od1xmlpath, od2mp4path, od2xmlpath});
 
             const clipId = this.roomMap.get(roomId);
@@ -76,29 +80,32 @@ export default class BililiveService {
                 PushApi.push('录制结束', message);
             }
 
-            // flv 转 m4a
-            this._toM4A(ctx, flvpath, m4apath);
-
-            // flv 转 mp4
             new Promise((res, rej) => {
                 (async () => {
                     try {
+                        // flv 转 m4a
+                        await this._toM4A(ctx, flvpath, m4apath);
+                        // flv 转 mp4
                         await this._toMP4(ctx, flvpath, mp4path);
+                        // 复制mp4到od1和od2
+                        await this._cp(mp4path, od1mp4path);
+                        await this._cp(od1mp4path, od2mp4path);
+                        // 复制xml到od1和od2
+                        await this._cp(xmlpath, od1xmlpath);
+                        await this._cp(od1xmlpath, od2xmlpath);
+                        // 复制m4a到远程地址
+                        await this._cp(m4apath, dstm4apath);
+                        // 复制flv到远程地址
+                        await this._cp(flvpath, dstflvpath);
+                        await unlink(flvpath);
+                        const newClip = await ZimuApi.updateClip(clipId, { type: 3});
+                        ctx.logger.info('clip更新后:');
+                        ctx.logger.info(newClip);
                     } catch (ex) {
                         ctx.logger.error(ex);
                     }
                 })();
             });
-            (async () => {
-                try {
-                    const newClip = await ZimuApi.updateClip(clipId, {
-                        type: 3
-                    });
-                    ctx.logger.info(`clip更新后:${newClip}`);
-                } catch (ex) {
-                    ctx.logger.error(ex);
-                }
-            })();
         }
         return {};
     }
@@ -156,6 +163,31 @@ export default class BililiveService {
         }).catch(error => {
             ctx.logger.error(error);
             PushApi.push('flv转mp4异常', `${error}`);
+        });
+    }
+
+    _cp = async (ctx, src, dst) => {
+        new Promise((res, rej) => {
+            const cmd = [
+                src, dst
+            ];
+            let p = spawn('copy', cmd);
+            p.stdout.on('data', (data) => {
+                ctx.logger.info('stdout: ' + data.toString());
+            });
+            p.stderr.on('data', (data) => {
+                ctx.logger.info('stderr: ' + data.toString());
+            });
+            p.on('close', (code) => {
+                ctx.logger.info(`复制${src}到${dst}结束,:code:${code}`);
+                res();
+            });
+            p.on('error', (error) => {
+                rej(error);
+            });
+        }).catch(error => {
+            ctx.logger.error(error);
+            PushApi.push('复制${src}到${dst}异常', `${error}`);
         });
     }
 }
