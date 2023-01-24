@@ -103,7 +103,7 @@ export default class BililiveService {
             ctx.logger.info({flvpath, mp4path, od1mp4path, od1xmlpath, od2mp4path, od2xmlpath, dstm4apath, dstflvpath, dstmp4path});
 
             const message = `${name},${title},${duration}s`;
-            if (duration < 2 * 60) {
+            if (duration < config.rec.minInterval) {
                 // 如果录制时间过短，则删掉该clip在字幕库中的信息，但是录播文件不删除
                 ctx.logger.info(`时间过短:${message}`);
                 PushApi.push('时间过短', message);
