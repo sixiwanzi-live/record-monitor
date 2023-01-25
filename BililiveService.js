@@ -28,6 +28,7 @@ export default class BililiveService {
         this.odMap.set(18, '量子少年');
         this.odMap.set(19, '量子少年');
         this.odMap.set(20, 'sp7/麻尤米mayumi');
+        this.odMap.set(21, 'sp9/凜凜蝶凜');
         this.odMap.set(22, 'ASOUL');
         this.odMap.set(23, 'ASOUL');
         this.odMap.set(24, 'ASOUL');
