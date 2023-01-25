@@ -154,10 +154,7 @@ export default class BililiveService {
                 ctx.logger.info('准备处理数据转换和迁移');
                 (async () => {
                     try {
-                        ctx.logger.info('开始处理数据转换和迁移');
-                        // flv 转 m4a
-                        await this._toM4A(ctx, flvpath, m4apath);
-                        // flv 转 mp4
+                        ctx.logger.info('开始flv转mp4');
                         await this._toMP4(ctx, flvpath, mp4path);
                         // 复制mp4到od1,od2和待转区
                         await copyFile(mp4path, od1mp4path);
@@ -173,6 +170,10 @@ export default class BililiveService {
 
                         await copyFile(xmlpath, od1xmlpath);
                         await copyFile(od1xmlpath, dstxmlpath);
+
+                        ctx.logger.info('开始flv转m4a');
+                        await this._toM4A(ctx, flvpath, m4apath);
+                        
                         // 复制m4a到远程地址
                         // await this._cp(ctx, m4apath, dstm4apath);
                         await copyFile(m4apath, dstm4apath);
@@ -220,7 +221,7 @@ export default class BililiveService {
     }
 
     _toMP4 = async (ctx, flvpath, mp4path) => {
-        new Promise((res, rej) => {
+        return new Promise((res, rej) => {
             const cmd = [
                 '-i', flvpath,
                 '-c', 'copy',
