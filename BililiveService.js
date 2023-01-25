@@ -48,7 +48,8 @@ export default class BililiveService {
         if (type === 'FileOpening') {
             ctx.logger.info('录制开始webhook'); 
             const datetime = body.EventData.FileOpenTime.substring(0, 19).replace('T', ' ');
-            const roomId = body.EventData.RoomId;
+            // const roomId = body.EventData.RoomId;
+            let roomId = 25290861;
             const name = body.EventData.Name;
             const title = body.EventData.Title.replaceAll('*', '_'); // 针对某些标题中含有*的情况，为了兼容windows系统文件，将*换成_
 
@@ -83,7 +84,8 @@ export default class BililiveService {
             }
         } else if (type === 'FileClosed') {
             ctx.logger.info('录制结束webhook');
-            const roomId = body.EventData.RoomId;
+            // const roomId = body.EventData.RoomId;
+            let roomId = 25290861;
             const name = body.EventData.Name;
             const title = body.EventData.Title;
             const duration = body.EventData.Duration;
@@ -104,10 +106,10 @@ export default class BililiveService {
             const xmlpath = flvpath.replace('.flv', '.xml');
             const mp4path = flvpath.replace('.flv', '.mp4');
             const m4apath = flvpath.replace('.flv', '.m4a');
-            const od1mp4path = `${config.rec.od1}/${odPrefix}/${mp4name}`;
-            const od1xmlpath = `${config.rec.od1}/${odPrefix}/${xmlname}`;
-            const od2mp4path = `${config.rec.od2}/${odPrefix}/${mp4name}`;
-            const od2xmlpath = `${config.rec.od2}/${odPrefix}/${xmlname}`;
+            const od1mp4path = `${config.rec.od1}/${odPrefix}/${mp4name.substring(0, 4)}.${mp4name.substring(4, 6)}/${mp4name}`;
+            const od1xmlpath = `${config.rec.od1}/${odPrefix}/${xmlname.substring(0, 4)}.${xmlname.substring(4, 6)}/${xmlname}`;
+            const od2mp4path = `${config.rec.od2}/${odPrefix}/${mp4name.substring(0, 4)}.${mp4name.substring(4, 6)}/${mp4name}`;
+            const od2xmlpath = `${config.rec.od2}/${odPrefix}/${xmlname.substring(0, 4)}.${xmlname.substring(4, 6)}/${xmlname}`;
             const dstm4apath = `${config.rec.m4a}/${m4aname}`;
             const dstflvpath = `${config.rec.flv}/${flvname}`;
             const dstmp4path = `${config.rec.mp4}/${mp4name}`;
