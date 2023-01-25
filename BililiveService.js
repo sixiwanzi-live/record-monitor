@@ -119,31 +119,6 @@ export default class BililiveService {
             const clip = this.roomMap.get(roomId);
             this.roomMap.set(roomId, null);
             if (!clip) return {};
-            if (!this.odMap.has(clip.authorId)) return {};
-            const odPrefix = this.odMap.get(clip.authorId);
-
-            // 生成flv,mp4,xml,txt的源和目的文件路径
-            const flvname = body.EventData.RelativePath.split('/')[2];
-            const xmlname = flvname.replace('.flv', '.xml');
-            const mp4name = flvname.replace('.flv', '.mp4');
-            const m4aname = flvname.replace('.flv', '.m4a');
-            const txtname = flvname.replace('.flv', '.txt');
-
-            const flvpath = `${config.rec.root}/${body.EventData.RelativePath}`;
-            const xmlpath = flvpath.replace('.flv', '.xml');
-            const mp4path = flvpath.replace('.flv', '.mp4');
-            const m4apath = flvpath.replace('.flv', '.m4a');
-            const txtpath = flvpath.replace('.flv', '.txt');
-            const od1mp4path = `${config.rec.od1}/${odPrefix}/${mp4name.substring(0, 4)}.${mp4name.substring(4, 6)}/${mp4name}`;
-            const od1xmlpath = `${config.rec.od1}/${odPrefix}/${xmlname.substring(0, 4)}.${xmlname.substring(4, 6)}/${xmlname}`;
-            const od2mp4path = `${config.rec.od2}/${odPrefix}/${mp4name.substring(0, 4)}.${mp4name.substring(4, 6)}/${mp4name}`;
-            const od2xmlpath = `${config.rec.od2}/${odPrefix}/${xmlname.substring(0, 4)}.${xmlname.substring(4, 6)}/${xmlname}`;
-            const dstm4apath = `${config.rec.m4a}/${m4aname}`;
-            const dstflvpath = `${config.rec.flv}/${flvname}`;
-            const dstmp4path = `${config.rec.mp4}/${mp4name}`;
-            const dstxmlpath = `${config.rec.mp4}/${xmlname}`;
-            const dsttxtpath = `${config.rec.mp4}/${txtname}`;
-            ctx.logger.info({flvpath, mp4path, od1mp4path, od1xmlpath, od2mp4path, od2xmlpath, dstm4apath, dstflvpath, dstmp4path});
 
             const message = `${name},${title},${duration}s`;
             if (duration < config.rec.minInterval) {
@@ -164,20 +139,33 @@ export default class BililiveService {
                 }
             } else {
                 PushApi.push('录制结束', message);
-                while (true) {
-                    try {
-                        const newClip = await ZimuApi.updateClip(clip.id, { type: 3 });
-                        ctx.logger.info('clip更新后:');
-                        ctx.logger.info(newClip);
-                        break;
-                    } catch (ex) {
-                        ctx.logger.error(ex);
-                    }
-                    await new Promise((res, rej) => {
-                        setTimeout(() => { res(); }, 3000);
-                    });
-                }
             }
+
+            if (!this.odMap.has(clip.authorId)) return {};
+            
+            const odPrefix = this.odMap.get(clip.authorId);
+            // 生成flv,mp4,xml,txt的源和目的文件路径
+            const flvname = body.EventData.RelativePath.split('/')[2];
+            const xmlname = flvname.replace('.flv', '.xml');
+            const mp4name = flvname.replace('.flv', '.mp4');
+            const m4aname = flvname.replace('.flv', '.m4a');
+            const txtname = flvname.replace('.flv', '.txt');
+
+            const flvpath = `${config.rec.root}/${body.EventData.RelativePath}`;
+            const xmlpath = flvpath.replace('.flv', '.xml');
+            const mp4path = flvpath.replace('.flv', '.mp4');
+            const m4apath = flvpath.replace('.flv', '.m4a');
+            const txtpath = flvpath.replace('.flv', '.txt');
+            const od1mp4path = `${config.rec.od1}/${odPrefix}/${mp4name.substring(0, 4)}.${mp4name.substring(4, 6)}/${mp4name}`;
+            const od1xmlpath = `${config.rec.od1}/${odPrefix}/${xmlname.substring(0, 4)}.${xmlname.substring(4, 6)}/${xmlname}`;
+            const od2mp4path = `${config.rec.od2}/${odPrefix}/${mp4name.substring(0, 4)}.${mp4name.substring(4, 6)}/${mp4name}`;
+            const od2xmlpath = `${config.rec.od2}/${odPrefix}/${xmlname.substring(0, 4)}.${xmlname.substring(4, 6)}/${xmlname}`;
+            const dstm4apath = `${config.rec.m4a}/${m4aname}`;
+            const dstflvpath = `${config.rec.flv}/${flvname}`;
+            const dsttxtpath = `${config.rec.flv}/${txtname}`;
+            const dstmp4path = `${config.rec.mp4}/${mp4name}`;
+            const dstxmlpath = `${config.rec.mp4}/${xmlname}`;
+            ctx.logger.info({flvpath, mp4path, od1mp4path, od1xmlpath, od2mp4path, od2xmlpath, dstm4apath, dstflvpath, dstmp4path});
 
             new Promise((res, rej) => {
                 ctx.logger.info('准备处理数据转换和迁移');
@@ -216,6 +204,8 @@ export default class BililiveService {
                         try {
                             await copyFile(txtpath, dsttxtpath);
                             ctx.logger.info(`复制${txtpath}到${dsttxtpath}结束`);
+                            await unlink(txtpath);
+                            ctx.logger.info(`删除${txtpath}结束`);
                         } catch(ex) {}
 
                         // 复制flv到远程地址
@@ -223,6 +213,20 @@ export default class BililiveService {
                         ctx.logger.info(`复制${flvpath}到${dstflvpath}结束`);
                         await unlink(flvpath);
                         ctx.logger.info(`删除${flvpath}结束`);
+
+                        while (true) {
+                            try {
+                                const newClip = await ZimuApi.updateClip(clip.id, { type: 3 });
+                                ctx.logger.info('clip更新后:');
+                                ctx.logger.info(newClip);
+                                break;
+                            } catch (ex) {
+                                ctx.logger.error(ex);
+                            }
+                            await new Promise((res, rej) => {
+                                setTimeout(() => { res(); }, 3000);
+                            });
+                        }
                         res();
                     } catch (ex) {
                         ctx.logger.error(ex);
