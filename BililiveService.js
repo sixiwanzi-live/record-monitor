@@ -205,9 +205,9 @@ export default class BililiveService {
             p.on('error', (error) => {
                 rej(error);
             });
-        }).catch(error => {
-            ctx.logger.error(error);
-            PushApi.push('flv转m4a异常', `${error}`);
+        }).catch(ex => {
+            ctx.logger.error(ex);
+            PushApi.push('flv转m4a异常', `${ex}`);
         });
     }
 
@@ -233,9 +233,9 @@ export default class BililiveService {
             p.on('error', (error) => {
                 rej(error);
             });
-        }).catch(error => {
-            ctx.logger.error(error);
-            PushApi.push('flv转mp4异常', `${error}`);
+        }).catch(ex => {
+            ctx.logger.error(ex);
+            PushApi.push('flv转mp4异常', `${ex}`);
         });
     }
 
@@ -258,9 +258,9 @@ export default class BililiveService {
             p.on('error', (error) => {
                 rej(error);
             });
-        }).catch(error => {
-            ctx.logger.error(error);
-            PushApi.push('复制${src}到${dst}异常', `${error}`);
+        }).catch(ex => {
+            ctx.logger.error(ex);
+            PushApi.push('复制${src}到${dst}异常', `${ex}`);
         });
     }
 }
