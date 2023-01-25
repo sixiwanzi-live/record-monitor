@@ -94,7 +94,7 @@ export default class BililiveService {
             const flvpath = `${config.rec.root}/${body.EventData.RelativePath}`;
             const xmlpath = flvpath.replace('.flv', '.xml');
             const mp4path = flvpath.replace('.flv', '.mp4');
-            const m4apath = m4apath.replace('.flv', '.m4a');
+            const m4apath = flvpath.replace('.flv', '.m4a');
             const od1mp4path = `${config.rec.od1}/${odPrefix}/${mp4name}`;
             const od1xmlpath = `${config.rec.od1}/${odPrefix}/${xmlname}`;
             const od2mp4path = `${config.rec.od2}/${odPrefix}/${mp4name}`;
