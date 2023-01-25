@@ -67,10 +67,21 @@ export default class BililiveService {
                 cover:      cover,
                 type:       4
             };
-            const newClip = await ZimuApi.insertClip(clip);
-            ctx.logger.info(`创建新clip:`);
-            ctx.logger.info(newClip);
-            this.roomMap.set(roomId, newClip);
+            
+            while (true) {
+                try {
+                    const newClip = await ZimuApi.insertClip(clip);
+                    ctx.logger.info(`创建新clip:`);
+                    ctx.logger.info(newClip);
+                    this.roomMap.set(roomId, newClip);
+                    break;
+                } catch (ex) {
+                    ctx.logger.error(ex);
+                }
+                await new Promise((res, rej) => {
+                    setTimeout(() => { res(); }, 3000);
+                });
+            }
         } else if (type === 'FileClosed') {
             ctx.logger.info('录制结束webhook');
             // const roomId = body.EventData.RoomId;
@@ -110,12 +121,33 @@ export default class BililiveService {
                 // 如果录制时间过短，则删掉该clip在字幕库中的信息，但是录播文件不删除
                 ctx.logger.info(`时间过短:${message}`);
                 PushApi.push('时间过短', message);
-                await ZimuApi.deleteClip(clip.id);
+
+                while (true) {
+                    try {
+                        await ZimuApi.deleteClip(clip.id);
+                        break;
+                    } catch (ex) {
+                        ctx.logger.error(ex);
+                    }
+                    await new Promise((res, rej) => {
+                        setTimeout(() => { res(); }, 3000);
+                    });
+                }
             } else {
                 PushApi.push('录制结束', message);
-                const newClip = await ZimuApi.updateClip(clip.id, { type: 3 });
-                ctx.logger.info('clip更新后:');
-                ctx.logger.info(newClip);
+                while (true) {
+                    try {
+                        const newClip = await ZimuApi.updateClip(clip.id, { type: 3 });
+                        ctx.logger.info('clip更新后:');
+                        ctx.logger.info(newClip);
+                        break;
+                    } catch (ex) {
+                        ctx.logger.error(ex);
+                    }
+                    await new Promise((res, rej) => {
+                        setTimeout(() => { res(); }, 3000);
+                    });
+                }
             }
 
             new Promise((res, rej) => {
