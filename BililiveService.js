@@ -160,17 +160,17 @@ export default class BililiveService {
                         // flv 转 mp4
                         await this._toMP4(ctx, flvpath, mp4path);
                         // 复制mp4到od1,od2和待转区
-                        await this._cp(mp4path, od1mp4path);
+                        await this._cp(ctx, mp4path, od1mp4path);
                         // await this._cp(od1mp4path, od2mp4path);
-                        await this._cp(od1mp4path, dstm4apath);
+                        await this._cp(ctx, od1mp4path, dstm4apath);
                         // 复制xml到od1和od2
-                        await this._cp(xmlpath, od1xmlpath);
+                        await this._cp(ctx, xmlpath, od1xmlpath);
                         // await this._cp(od1xmlpath, od2xmlpath);
-                        await this._cp(od1xmlpath, dstxmlpath);
+                        await this._cp(ctx, od1xmlpath, dstxmlpath);
                         // 复制m4a到远程地址
-                        await this._cp(m4apath, dstm4apath);
+                        await this._cp(ctx, m4apath, dstm4apath);
                         // 复制flv到远程地址
-                        await this._cp(flvpath, dstflvpath);
+                        await this._cp(ctx, flvpath, dstflvpath);
                         await unlink(flvpath);
                         res();
                     } catch (ex) {
