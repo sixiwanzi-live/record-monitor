@@ -38,6 +38,34 @@ export default class BililiveService {
         this.odMap.set(28, '星律动');
         this.odMap.set(32, 'sp2/星瞳_Official');
         this.odMap.set(33, '星律动');
+
+        this.od2Set = new Set();
+        this.od2Set.add(1);
+        this.od2Set.add(2);
+        this.od2Set.add(3);
+        this.od2Set.add(4);
+        this.od2Set.add(5);
+        this.od2Set.add(6);
+        this.od2Set.add(9);
+        this.od2Set.add(10);
+        this.od2Set.add(11);
+        this.od2Set.add(12);
+        this.od2Set.add(13);
+        this.od2Set.add(14);
+        this.od2Set.add(15);
+        this.od2Set.add(16);
+        this.od2Set.add(17);
+        this.od2Set.add(18);
+        this.od2Set.add(19);
+        this.od2Set.add(21);
+        this.od2Set.add(22);
+        this.od2Set.add(23);
+        this.od2Set.add(24);
+        this.od2Set.add(25);
+        this.od2Set.add(26);
+        this.od2Set.add(27);
+        this.od2Set.add(28);
+        this.od2Set.add(33);
     }
 
     webhook = async (ctx) => {
@@ -96,16 +124,18 @@ export default class BililiveService {
             if (!this.odMap.has(clip.authorId)) return {};
             const odPrefix = this.odMap.get(clip.authorId);
 
-            // 生成flv，mp4，xml的源和目的文件路径
+            // 生成flv,mp4,xml,txt的源和目的文件路径
             const flvname = body.EventData.RelativePath.split('/')[2];
             const xmlname = flvname.replace('.flv', '.xml');
             const mp4name = flvname.replace('.flv', '.mp4');
             const m4aname = flvname.replace('.flv', '.m4a');
+            const txtname = flvname.replace('.flv', '.txt');
 
             const flvpath = `${config.rec.root}/${body.EventData.RelativePath}`;
             const xmlpath = flvpath.replace('.flv', '.xml');
             const mp4path = flvpath.replace('.flv', '.mp4');
             const m4apath = flvpath.replace('.flv', '.m4a');
+            const txtpath = txtpath.replace('.flv', '.txt');
             const od1mp4path = `${config.rec.od1}/${odPrefix}/${mp4name.substring(0, 4)}.${mp4name.substring(4, 6)}/${mp4name}`;
             const od1xmlpath = `${config.rec.od1}/${odPrefix}/${xmlname.substring(0, 4)}.${xmlname.substring(4, 6)}/${xmlname}`;
             const od2mp4path = `${config.rec.od2}/${odPrefix}/${mp4name.substring(0, 4)}.${mp4name.substring(4, 6)}/${mp4name}`;
@@ -114,6 +144,7 @@ export default class BililiveService {
             const dstflvpath = `${config.rec.flv}/${flvname}`;
             const dstmp4path = `${config.rec.mp4}/${mp4name}`;
             const dstxmlpath = `${config.rec.mp4}/${xmlname}`;
+            const dsttxtpath = `${config.rec.mp4}/${txtname}`;
             ctx.logger.info({flvpath, mp4path, od1mp4path, od1xmlpath, od2mp4path, od2xmlpath, dstm4apath, dstflvpath, dstmp4path});
 
             const message = `${name},${title},${duration}s`;
@@ -157,30 +188,43 @@ export default class BililiveService {
                         ctx.logger.info('开始flv转mp4');
                         await this._toMP4(ctx, flvpath, mp4path);
                         // 复制mp4到od1,od2和待转区
-                        await copyFile(mp4path, od1mp4path);
-                        await copyFile(od1mp4path, dstmp4path);
-                        // await this._cp(ctx, mp4path, od1mp4path);
-                        // await this._cp(od1mp4path, od2mp4path);
-                        // await this._cp(ctx, od1mp4path, dstm4apath);
-                        
-                        // 复制xml到od1和od2
-                        // await this._cp(ctx, xmlpath, od1xmlpath);
-                        // await this._cp(od1xmlpath, od2xmlpath);
-                        // await this._cp(ctx, od1xmlpath, dstxmlpath);
-
-                        await copyFile(xmlpath, od1xmlpath);
-                        await copyFile(od1xmlpath, dstxmlpath);
+                        await copyFile(mp4path, dstmp4path);
+                        ctx.logger.info(`复制${mp4path}到${dstmp4path}结束`);
+                        await copyFile(dstmp4path, od1mp4path);
+                        ctx.logger.info(`复制${dstmp4path}到${od1mp4path}结束`);
+                        if (this.od2Set.has(clip.authorId)) {
+                            await copyFile(dstmp4path, od2mp4path);
+                            ctx.logger.info(`复制${dstmp4path}到${od2mp4path}结束`);
+                        }
+                                                
+                        // 复制xml到od1和od2和待转区
+                        await copyFile(xmlpath, dstxmlpath);
+                        ctx.logger.info(`复制${xmlpath}到${dstxmlpath}结束`);
+                        await copyFile(dstxmlpath, od1xmlpath);
+                        ctx.logger.info(`复制${dstxmlpath}到${od1xmlpath}结束`);
+                        if (this.od2Set.has(clip.authorId)) {
+                            await copyFile(dstxmlpath, od2xmlpath);
+                            ctx.logger.info(`复制${dstxmlpath}到${od2xmlpath}结束`);
+                        }
 
                         ctx.logger.info('开始flv转m4a');
                         await this._toM4A(ctx, flvpath, m4apath);
                         
                         // 复制m4a到远程地址
-                        // await this._cp(ctx, m4apath, dstm4apath);
                         await copyFile(m4apath, dstm4apath);
+                        ctx.logger.info(`复制${m4apath}到${dstm4apath}结束`);
+
+                        // 复制txt到远程地址，txt很可能不存在
+                        try {
+                            await copyFile(txtpath, dsttxtpath);
+                            ctx.logger.info(`复制${txtpath}到${dsttxtpath}结束`);
+                        } catch(ex) {}
+                        
                         // 复制flv到远程地址
-                        // await this._cp(ctx, flvpath, dstflvpath);
                         await copyFile(flvpath, dstflvpath);
+                        ctx.logger.info(`复制${flvpath}到${dstflvpath}结束`);
                         await unlink(flvpath);
+                        ctx.logger.info(`删除${flvpath}结束`);
                         res();
                     } catch (ex) {
                         ctx.logger.error(ex);
@@ -245,31 +289,6 @@ export default class BililiveService {
         }).catch(ex => {
             ctx.logger.error(ex);
             PushApi.push('flv转mp4异常', `${ex}`);
-        });
-    }
-
-    _cp = async (ctx, src, dst) => {
-        new Promise((res, rej) => {
-            const cmd = [
-                src, dst
-            ];
-            let p = spawn('copy', cmd);
-            p.stdout.on('data', (data) => {
-                ctx.logger.info('stdout: ' + data.toString());
-            });
-            p.stderr.on('data', (data) => {
-                ctx.logger.info('stderr: ' + data.toString());
-            });
-            p.on('close', (code) => {
-                ctx.logger.info(`复制${src}到${dst}结束,:code:${code}`);
-                res();
-            });
-            p.on('error', (error) => {
-                rej(error);
-            });
-        }).catch(ex => {
-            ctx.logger.error(ex);
-            PushApi.push('复制${src}到${dst}异常', `${ex}`);
         });
     }
 }
