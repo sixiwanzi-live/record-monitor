@@ -1,5 +1,5 @@
 import { spawn } from 'child_process';
-import { unlink } from 'fs/promises';
+import { copyFile, unlink } from 'fs/promises';
 import config from './config.js';
 import BiliApi from './api/BiliApi.js';
 import ZimuApi from './api/ZimuApi.js';
@@ -160,17 +160,25 @@ export default class BililiveService {
                         // flv 转 mp4
                         await this._toMP4(ctx, flvpath, mp4path);
                         // 复制mp4到od1,od2和待转区
-                        await this._cp(ctx, mp4path, od1mp4path);
+                        await copyFile(mp4path, od1mp4path);
+                        await copyFile(od1mp4path, dstmp4path);
+                        // await this._cp(ctx, mp4path, od1mp4path);
                         // await this._cp(od1mp4path, od2mp4path);
-                        await this._cp(ctx, od1mp4path, dstm4apath);
+                        // await this._cp(ctx, od1mp4path, dstm4apath);
+                        
                         // 复制xml到od1和od2
-                        await this._cp(ctx, xmlpath, od1xmlpath);
+                        // await this._cp(ctx, xmlpath, od1xmlpath);
                         // await this._cp(od1xmlpath, od2xmlpath);
-                        await this._cp(ctx, od1xmlpath, dstxmlpath);
+                        // await this._cp(ctx, od1xmlpath, dstxmlpath);
+
+                        await copyFile(xmlpath, od1xmlpath);
+                        await copyFile(od1xmlpath, dstxmlpath);
                         // 复制m4a到远程地址
-                        await this._cp(ctx, m4apath, dstm4apath);
+                        // await this._cp(ctx, m4apath, dstm4apath);
+                        await copyFile(m4apath, dstm4apath);
                         // 复制flv到远程地址
-                        await this._cp(ctx, flvpath, dstflvpath);
+                        // await this._cp(ctx, flvpath, dstflvpath);
+                        await copyFile(flvpath, dstflvpath);
                         await unlink(flvpath);
                         res();
                     } catch (ex) {
