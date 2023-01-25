@@ -135,7 +135,7 @@ export default class BililiveService {
             const xmlpath = flvpath.replace('.flv', '.xml');
             const mp4path = flvpath.replace('.flv', '.mp4');
             const m4apath = flvpath.replace('.flv', '.m4a');
-            const txtpath = txtpath.replace('.flv', '.txt');
+            const txtpath = flvpath.replace('.flv', '.txt');
             const od1mp4path = `${config.rec.od1}/${odPrefix}/${mp4name.substring(0, 4)}.${mp4name.substring(4, 6)}/${mp4name}`;
             const od1xmlpath = `${config.rec.od1}/${odPrefix}/${xmlname.substring(0, 4)}.${xmlname.substring(4, 6)}/${xmlname}`;
             const od2mp4path = `${config.rec.od2}/${odPrefix}/${mp4name.substring(0, 4)}.${mp4name.substring(4, 6)}/${mp4name}`;
@@ -219,7 +219,7 @@ export default class BililiveService {
                             await copyFile(txtpath, dsttxtpath);
                             ctx.logger.info(`复制${txtpath}到${dsttxtpath}结束`);
                         } catch(ex) {}
-                        
+
                         // 复制flv到远程地址
                         await copyFile(flvpath, dstflvpath);
                         ctx.logger.info(`复制${flvpath}到${dstflvpath}结束`);
