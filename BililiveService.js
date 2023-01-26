@@ -139,8 +139,25 @@ export default class BililiveService {
                 }
             } else {
                 PushApi.push('录制结束', message);
+                // 本地源的录播需要改变状态，B站源的录播不需要改变状态
+                if (this.odMap.has(clip.authorId)) {
+                    while (true) {
+                        try {
+                            const newClip = await ZimuApi.updateClip(clip.id, { type: 3 });
+                            ctx.logger.info('clip更新后:');
+                            ctx.logger.info(newClip);
+                            break;
+                        } catch (ex) {
+                            ctx.logger.error(ex);
+                        }
+                        await new Promise((res, rej) => {
+                            setTimeout(() => { res(); }, 3000);
+                        });
+                    }
+                }
             }
 
+            // 接下来的一系列转码和文件转移操作，均只涉及到本地源，B站源的录播可以直接退出
             if (!this.odMap.has(clip.authorId)) return {};
             
             const odPrefix = this.odMap.get(clip.authorId);
@@ -213,19 +230,6 @@ export default class BililiveService {
                         await unlink(flvpath);
                         ctx.logger.info(`删除${flvpath}结束`);
 
-                        while (true) {
-                            try {
-                                const newClip = await ZimuApi.updateClip(clip.id, { type: 3 });
-                                ctx.logger.info('clip更新后:');
-                                ctx.logger.info(newClip);
-                                break;
-                            } catch (ex) {
-                                ctx.logger.error(ex);
-                            }
-                            await new Promise((res, rej) => {
-                                setTimeout(() => { res(); }, 3000);
-                            });
-                        }
                         res();
                     } catch (ex) {
                         ctx.logger.error(ex);
