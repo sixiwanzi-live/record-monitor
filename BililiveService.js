@@ -191,6 +191,9 @@ export default class BililiveService {
                         // 复制m4a到远程地址
                         await copyFile(m4apath, dstm4apath);
                         ctx.logger.info(`复制${m4apath}到${dstm4apath}结束`);
+                        await unlink(m4apath);
+                        ctx.logger.info(`删除${m4apath}结束`);
+
 
                         ctx.logger.info('开始flv转mp4');
                         await this._toMP4(ctx, flvpath, mp4path);
