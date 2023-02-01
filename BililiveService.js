@@ -176,11 +176,12 @@ export default class BililiveService {
             const od2mp4path = `${config.rec.od2}/${odPrefix}/${mp4name.substring(0, 4)}.${mp4name.substring(4, 6)}/${mp4name}`;
             const od2xmlpath = `${config.rec.od2}/${odPrefix}/${xmlname.substring(0, 4)}.${xmlname.substring(4, 6)}/${xmlname}`;
             const dstm4apath = `${config.rec.m4a}/${m4aname}`;
+            const dstimagemp4path = `${config.rec.m4a}/${mp4name}`;
             const dstflvpath = `${config.rec.flv}/${flvname}`;
             const dsttxtpath = `${config.rec.flv}/${txtname}`;
             const dstmp4path = `${config.rec.mp4}/${mp4name}`;
             const dstxmlpath = `${config.rec.mp4}/${xmlname}`;
-            ctx.logger.info({flvpath, mp4path, od1mp4path, od1xmlpath, od2mp4path, od2xmlpath, dstm4apath, dstflvpath, dstmp4path});
+            ctx.logger.info({flvpath, mp4path, od1mp4path, od1xmlpath, od2mp4path, od2xmlpath, dstm4apath, dstimagemp4path, dstflvpath, dstmp4path});
 
             new Promise((res, rej) => {
                 ctx.logger.info('准备处理数据转换和迁移');
@@ -194,6 +195,18 @@ export default class BililiveService {
                         await unlink(m4apath);
                         ctx.logger.info(`删除${m4apath}结束`);
 
+                        // 如果时间长度合适，就将音频文件生成一图流视频
+                        // 并且将该视频上传到B站，利用B站生成智能字幕
+                        if (duration >= config.rec.minInterval) {
+                            try {
+                                await this._toImageMP4(ctx, dstm4apath, dstimagemp4path);
+                                await this._upload(ctx, dstimagemp4path);
+                                ctx.logger.info(`上传视频${dstimagemp4path}结束`);
+                            } catch (ex) {
+                                // 就算上传失败，也不影响接下来的操作
+                                ctx.logger.error(ex);
+                            }
+                        }
 
                         ctx.logger.info('开始flv转mp4');
                         await this._toMP4(ctx, flvpath, mp4path);
@@ -295,6 +308,69 @@ export default class BililiveService {
         }).catch(ex => {
             ctx.logger.error(ex);
             PushApi.push('flv转mp4异常', `${ex}`);
+        });
+    }
+
+    _toImageMP4 = async (ctx, m4apath, mp4path) => {
+        return new Promise((res, rej) => {
+            const cmd = [
+                '-r', '1',
+                '-loop', '1',
+                '-y', 
+                '-i', config.up.background,
+                '-i', m4apath,
+                '-shortest',
+                '-c:a', 'copy',
+                '-c:v', 'libx264',
+                '-b:v', '1k',
+                mp4path
+            ];
+            let p = spawn('ffmpeg', cmd);
+            p.stdout.on('data', (data) => {
+                ctx.logger.info('stdout: ' + data.toString());
+            });
+            p.stderr.on('data', (data) => {
+                ctx.logger.info('stderr: ' + data.toString());
+            });
+            p.on('close', (code) => {
+                ctx.logger.info(`生成ImageMp4结束,ffmpeg退出:code:${code}`);
+                res();
+            });
+            p.on('error', (error) => {
+                rej(error);
+            });
+        }).catch(ex => {
+            ctx.logger.error(ex);
+            PushApi.push('生成ImageMp4异常', `${ex}`);
+        });
+    }
+
+    _upload = async (ctx, mp4path) => {
+        return new Promise((res, rej) => {
+            const cmd = [
+                'upload',
+                '--line', 'ws',
+                '--limit', '3',
+                '--tag', config.up.tags,
+                mp4path
+            ];
+            let p = spawn('biliup', cmd);
+            p.stdout.on('data', (data) => {
+                ctx.logger.info('stdout: ' + data.toString());
+            });
+            p.stderr.on('data', (data) => {
+                ctx.logger.info('stderr: ' + data.toString());
+            });
+            p.on('close', (code) => {
+                ctx.logger.info(`上传到B站结束,ffmpeg退出:code:${code}`);
+                res();
+            });
+            p.on('error', (error) => {
+                rej(error);
+            });
+        }).catch(ex => {
+            ctx.logger.error(ex);
+            PushApi.push('上传到B站异常', `${ex}`);
         });
     }
 }
