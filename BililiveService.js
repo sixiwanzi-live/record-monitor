@@ -348,11 +348,11 @@ export default class BililiveService {
     _upload = async (ctx, mp4path) => {
         return new Promise((res, rej) => {
             const cmd = [
-                'upload',
-                '--line', 'ws',
-                '--limit', '3',
+                '-u', config.up.cookiepath,
+                'upload', mp4path,
                 '--tag', config.up.tags,
-                mp4path
+                '--line', 'ws',
+                '--limit', '3'
             ];
             let p = spawn('biliup', cmd);
             p.stdout.on('data', (data) => {
