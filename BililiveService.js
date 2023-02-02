@@ -96,9 +96,9 @@ export default class BililiveService {
             while (true) {
                 try {
                     const newClip = await ZimuApi.insertClip(clip);
-                    ctx.logger.info(`创建新clip:`);
-                    ctx.logger.info(newClip);
                     this.roomMap.set(roomId, newClip);
+                    ctx.logger.info(`创建新clip:`);
+                    ctx.logger.info(this.roomMap.get(roomId));
                     break;
                 } catch (ex) {
                     ctx.logger.error(ex);
