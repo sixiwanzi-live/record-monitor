@@ -115,11 +115,11 @@ export default class BililiveService {
             const duration = body.EventData.Duration;
 
             const clip = this.roomMap.get(roomId);
-            this.roomMap.set(roomId, null);
             if (!clip) {
                 ctx.logger.error(`房间(${roomId})找不到clip`);
                 return;
             }
+            this.roomMap.set(roomId, null);
 
             const message = `${name},${title},${duration}s`;
             if (duration < config.rec.minInterval) {
