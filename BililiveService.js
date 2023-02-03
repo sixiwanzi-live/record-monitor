@@ -74,10 +74,10 @@ export default class BililiveService {
         if (type === 'FileOpening') {
             ctx.logger.info('录制开始webhook'); 
             const datetime = body.EventData.FileOpenTime.substring(0, 19).replace('T', ' ');
-            const roomId = body.EventData.RoomId;
+            //const roomId = body.EventData.RoomId;
             const name = body.EventData.Name;
             const title = body.EventData.Title.replaceAll('*', '_'); // 针对某些标题中含有*的情况，为了兼容windows系统文件，将*换成_
-
+            const roomId = 23905421;
             // 从bilibili获取到直播间基础信息
             const roomInfo = await BiliApi.getRoomInfo(roomId);
             const uid = roomInfo.uid;
@@ -109,10 +109,12 @@ export default class BililiveService {
             }
         } else if (type === 'FileClosed') {
             ctx.logger.info('录制结束webhook');
-            const roomId = body.EventData.RoomId;
+            // const roomId = body.EventData.RoomId;
             const name = body.EventData.Name;
             const title = body.EventData.Title;
             const duration = body.EventData.Duration;
+
+            const roomId = 23905421;
 
             const clip = this.roomMap.get(roomId);
             if (!clip) {
