@@ -179,7 +179,7 @@ export default class BililiveService {
             const od2mp4path = `${config.rec.od2}/${odPrefix}/${mp4name.substring(0, 4)}.${mp4name.substring(4, 6)}/${mp4name}`;
             const od2xmlpath = `${config.rec.od2}/${odPrefix}/${xmlname.substring(0, 4)}.${xmlname.substring(4, 6)}/${xmlname}`;
             const dstm4apath = `${config.rec.m4a}/${m4aname}`;
-            const dstimagemp4path = `${config.rec.m4a}/${mp4name}`;
+            const dstimagemp4path = `${config.rec.imagemp4}/${mp4name}`;
             const dstflvpath = `${config.rec.flv}/${flvname}`;
             const dsttxtpath = `${config.rec.flv}/${txtname}`;
             const dstmp4path = `${config.rec.mp4}/${mp4name}`;
