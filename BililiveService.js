@@ -126,7 +126,7 @@ export default class BililiveService {
             const message = `${name},${title},${duration}s`;
             if (duration < config.rec.minInterval) {
                 // 如果录制时间过短，则删掉该clip在字幕库中的信息，但是录播文件不删除
-                ctx.logger.info(`时间过短:${message}`);
+                ctx.logger.info(`时间过短:${message},不得低于${config.rec.minInterval}s`);
                 PushApi.push('时间过短', message);
 
                 while (true) {
