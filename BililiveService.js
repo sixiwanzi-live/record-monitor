@@ -92,7 +92,8 @@ export default class BililiveService {
                 type:       4
             };
             
-            while (true) {
+            // 重试10次
+            for (let i = 0; i < 10; ++i) {
                 try {
                     const newClip = await ZimuApi.insertClip(clip);
                     this.roomMap.set(roomId, newClip);
@@ -126,7 +127,8 @@ export default class BililiveService {
                 ctx.logger.info(`时间过短:${message},不得低于${config.rec.minInterval}s`);
                 PushApi.push('时间过短', message);
 
-                while (true) {
+                // 重试10次
+                for (let i = 0; i < 10; ++i) {
                     try {
                         await ZimuApi.deleteClip(clip.id);
                         break;
@@ -141,7 +143,7 @@ export default class BililiveService {
                 PushApi.push('录制结束', message);
                 // 本地源的录播需要改变状态，B站源的录播不需要改变状态
                 if (this.odMap.has(clip.authorId)) {
-                    while (true) {
+                    for (let i = 0; i < 10; ++i) { // 重试10次
                         try {
                             const newClip = await ZimuApi.updateClip(clip.id, { type: 3 });
                             ctx.logger.info('clip更新后:');
