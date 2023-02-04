@@ -37,6 +37,10 @@ export default class BililiveService {
         this.odMap.set(28, '星律动');
         this.odMap.set(32, 'sp2/星瞳_Official');
         this.odMap.set(33, '星律动');
+        this.odMap.set(35, 'VirtuaReal-Part1/七海Nana7mi');
+        this.odMap.set(36, 'VirtuaReal-Part1/阿梓从小就很可爱');
+        this.odMap.set(37, 'VirtuaReal-Part1/小可学妹');
+        this.odMap.set(38, 'VirtuaReal-Part1/阿萨Aza');
 
         this.od2Set = new Set();
         this.od2Set.add(1);
