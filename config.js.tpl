@@ -10,7 +10,8 @@ export default {
         od2: 'OneDrive 2 文件夹位置',
         m4a: 'm4a归档文件夹位置',
         flv: 'flv归档文件夹位置',
-        mp4: 'mp4临时文件夹位置'
+        mp4: 'mp4临时文件夹位置',
+        imagemp4: 'imagemp4临时文件夹位置'
     },
     up: {
         background: '一图流地址',

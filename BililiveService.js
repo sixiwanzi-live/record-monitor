@@ -81,7 +81,6 @@ export default class BililiveService {
             const roomId = body.EventData.RoomId;
             const name = body.EventData.Name;
             const title = body.EventData.Title.replaceAll('*', '_'); // 针对某些标题中含有*的情况，为了兼容windows系统文件，将*换成_
-
             // 从bilibili获取到直播间基础信息
             const roomInfo = await BiliApi.getRoomInfo(roomId);
             const uid = roomInfo.uid;
@@ -97,12 +96,13 @@ export default class BililiveService {
                 type:       4
             };
             
-            while (true) {
+            // 重试10次
+            for (let i = 0; i < 10; ++i) {
                 try {
                     const newClip = await ZimuApi.insertClip(clip);
-                    ctx.logger.info(`创建新clip:`);
-                    ctx.logger.info(newClip);
                     this.roomMap.set(roomId, newClip);
+                    ctx.logger.info(`创建新clip:`);
+                    ctx.logger.info(this.roomMap.get(roomId));
                     break;
                 } catch (ex) {
                     ctx.logger.error(ex);
@@ -119,16 +119,20 @@ export default class BililiveService {
             const duration = body.EventData.Duration;
 
             const clip = this.roomMap.get(roomId);
+            if (!clip) {
+                ctx.logger.error(`房间(${roomId})找不到clip`);
+                return;
+            }
             this.roomMap.set(roomId, null);
-            if (!clip) return {};
 
             const message = `${name},${title},${duration}s`;
             if (duration < config.rec.minInterval) {
                 // 如果录制时间过短，则删掉该clip在字幕库中的信息，但是录播文件不删除
-                ctx.logger.info(`时间过短:${message}`);
+                ctx.logger.info(`时间过短:${message},不得低于${config.rec.minInterval}s`);
                 PushApi.push('时间过短', message);
 
-                while (true) {
+                // 重试10次
+                for (let i = 0; i < 10; ++i) {
                     try {
                         await ZimuApi.deleteClip(clip.id);
                         break;
@@ -143,7 +147,7 @@ export default class BililiveService {
                 PushApi.push('录制结束', message);
                 // 本地源的录播需要改变状态，B站源的录播不需要改变状态
                 if (this.odMap.has(clip.authorId)) {
-                    while (true) {
+                    for (let i = 0; i < 10; ++i) { // 重试10次
                         try {
                             const newClip = await ZimuApi.updateClip(clip.id, { type: 3 });
                             ctx.logger.info('clip更新后:');
@@ -180,7 +184,7 @@ export default class BililiveService {
             const od2mp4path = `${config.rec.od2}/${odPrefix}/${mp4name.substring(0, 4)}.${mp4name.substring(4, 6)}/${mp4name}`;
             const od2xmlpath = `${config.rec.od2}/${odPrefix}/${xmlname.substring(0, 4)}.${xmlname.substring(4, 6)}/${xmlname}`;
             const dstm4apath = `${config.rec.m4a}/${m4aname}`;
-            const dstimagemp4path = `${config.rec.m4a}/${mp4name}`;
+            const dstimagemp4path = `${config.rec.imagemp4}/${mp4name}`;
             const dstflvpath = `${config.rec.flv}/${flvname}`;
             const dsttxtpath = `${config.rec.flv}/${txtname}`;
             const dstmp4path = `${config.rec.mp4}/${mp4name}`;
