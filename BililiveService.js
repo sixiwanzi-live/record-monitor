@@ -68,6 +68,10 @@ export default class BililiveService {
         this.od2Set.add(27);
         this.od2Set.add(28);
         this.od2Set.add(33);
+        this.od2Set.add(35);
+        this.od2Set.add(36);
+        this.od2Set.add(37);
+        this.od2Set.add(38);
     }
 
     webhook = async (ctx) => {
