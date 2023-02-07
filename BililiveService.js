@@ -273,6 +273,7 @@ export default class BililiveService {
                     }
                 });
             });
+        }
         return {};
     }
 
