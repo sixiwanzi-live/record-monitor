@@ -14,7 +14,9 @@ export default class TaskPool {
                 await cb();
             }
             await new Promise((res, rej) => {
-                setTimeout(() => {}, 100);
+                setTimeout(() => {
+                    res();
+                }, 1000);
             });
         }
     }
