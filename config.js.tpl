@@ -1,7 +1,8 @@
 export default {
     web: {
         port: 你的服务端口号,
-        bodyLimit: 4 * 1024
+        bodyLimit: 4 * 1024,
+        retry: 外部接口请求重试次数
     },
     rec: {
         minInterval: 最小录播时长,
