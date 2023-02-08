@@ -265,11 +265,8 @@ export default class BililiveService {
                         ctx.logger.info(`复制${flvpath}到${dstflvpath}结束`);
                         await unlink(flvpath);
                         ctx.logger.info(`删除${flvpath}结束`);
-
-                        res();
                     } catch (ex) {
                         ctx.logger.error(ex);
-                        rej(ex);
                     }
                 });
             });
