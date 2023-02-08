@@ -11,7 +11,11 @@ export default class TaskPool {
         while (true) {
             while (this.pool.length > 0) {
                 const cb = this.pool.shift();
-                await cb();
+                try {
+                    await cb();
+                } catch (ex) {
+                    console.log(ex);
+                }
             }
             await new Promise((res, rej) => {
                 setTimeout(() => {
