@@ -189,11 +189,14 @@ export default class BililiveService {
                 const m4aname = flvname.replace('.flv', '.m4a');
                 const txtname = flvname.replace('.flv', '.txt');
 
-                const flvpath = `${config.rec.root}/${body.EventData.RelativePath}`;
-                const xmlpath = flvpath.replace('.flv', '.xml');
-                const mp4path = flvpath.replace('.flv', '.mp4');
-                const m4apath = flvpath.replace('.flv', '.m4a');
-                const txtpath = flvpath.replace('.flv', '.txt');
+                const liveflvpath = `${config.rec.live}/${body.EventData.RelativePath}`;
+                const livexmlpath = liveflvpath.replace('.flv', '.xml');
+                const livetxtpath = liveflvpath.replace('.flv', '.txt');
+
+                const rootflvpath = `${config.rec.root}/${body.EventData.RelativePath}`;
+                const rootxmlpath = rootflvpath.replace('.flv', '.xml');
+                const rootmp4path = rootflvpath.replace('.flv', '.mp4');
+
                 const od1mp4path = `${config.rec.od1}/${odPrefix}/${mp4name.substring(0, 4)}.${mp4name.substring(4, 6)}/${mp4name}`;
                 const od1xmlpath = `${config.rec.od1}/${odPrefix}/${xmlname.substring(0, 4)}.${xmlname.substring(4, 6)}/${xmlname}`;
                 const od2mp4path = `${config.rec.od2}/${odPrefix}/${mp4name.substring(0, 4)}.${mp4name.substring(4, 6)}/${mp4name}`;
@@ -204,18 +207,27 @@ export default class BililiveService {
                 const dsttxtpath = `${config.rec.flv}/${txtname}`;
                 const dstmp4path = `${config.rec.mp4}/${mp4name}`;
                 const dstxmlpath = `${config.rec.mp4}/${xmlname}`;
-                ctx.logger.info({flvpath, mp4path, od1mp4path, od1xmlpath, od2mp4path, od2xmlpath, dstm4apath, dstimagemp4path, dstflvpath, dstmp4path});
+                ctx.logger.info({liveflvpath, livexmlpath, od1mp4path, od1xmlpath, od2mp4path, od2xmlpath, dstm4apath, dstimagemp4path, dstflvpath, dstmp4path});
 
                 ctx.logger.info('准备处理数据转换和迁移');
                 this.diskTaskPool.push(async () => {
                     try {
+                        // 复制flv到待转区
+                        await copyFile(liveflvpath, dstflvpath);
+                        ctx.logger.info(`复制${liveflvpath}到${dstflvpath}结束`);
+                        // 复制xml到待转区
+                        await copyFile(livexmlpath, dstxmlpath);
+                        ctx.logger.info(`复制${livexmlpath}到${dstxmlpath}结束`);
+                        // 复制txt到待转区，txt很可能不存在
+                        try {
+                            await copyFile(livetxtpath, dsttxtpath);
+                            ctx.logger.info(`复制${livetxtpath}到${dsttxtpath}结束`);
+                            await unlink(livetxtpath);
+                            ctx.logger.info(`删除${livetxtpath}结束`);
+                        } catch(ex) {}
+                        
                         ctx.logger.info('开始flv转m4a');
-                        await this._toM4A(ctx, flvpath, m4apath);
-                        // 复制m4a到远程地址
-                        await copyFile(m4apath, dstm4apath);
-                        ctx.logger.info(`复制${m4apath}到${dstm4apath}结束`);
-                        await unlink(m4apath);
-                        ctx.logger.info(`删除${m4apath}结束`);
+                        await this._toM4A(ctx, dstflvpath, dstm4apath);
 
                         // 如果时间长度合适，就将音频文件生成一图流视频
                         // 并且将该视频上传到B站，利用B站生成智能字幕
@@ -231,10 +243,10 @@ export default class BililiveService {
                         }
 
                         ctx.logger.info('开始flv转mp4');
-                        await this._toMP4(ctx, flvpath, mp4path);
-                        // 复制mp4到od1,od2和待转区
-                        await copyFile(mp4path, dstmp4path);
-                        ctx.logger.info(`复制${mp4path}到${dstmp4path}结束`);
+                        await this._toMP4(ctx, dstflvpath, dstmp4path);
+                        // 复制mp4到od1,od2和root区
+                        await copyFile(dstmp4path, rootmp4path);
+                        ctx.logger.info(`复制${dstmp4path}到${rootmp4path}结束`);
                         await copyFile(dstmp4path, od1mp4path);
                         ctx.logger.info(`复制${dstmp4path}到${od1mp4path}结束`);
                         if (this.od2Set.has(clip.authorId)) {
@@ -242,29 +254,20 @@ export default class BililiveService {
                             ctx.logger.info(`复制${dstmp4path}到${od2mp4path}结束`);
                         }
                                                 
-                        // 复制xml到od1和od2和待转区
-                        await copyFile(xmlpath, dstxmlpath);
-                        ctx.logger.info(`复制${xmlpath}到${dstxmlpath}结束`);
+                        // 复制xml到od1和od2和root区
+                        await copyFile(dstxmlpath, rootxmlpath);
+                        ctx.logger.info(`复制${dstxmlpath}到${rootxmlpath}结束`);
                         await copyFile(dstxmlpath, od1xmlpath);
                         ctx.logger.info(`复制${dstxmlpath}到${od1xmlpath}结束`);
                         if (this.od2Set.has(clip.authorId)) {
                             await copyFile(dstxmlpath, od2xmlpath);
                             ctx.logger.info(`复制${dstxmlpath}到${od2xmlpath}结束`);
-                        }
+                        }                        
 
-                        // 复制txt到远程地址，txt很可能不存在
-                        try {
-                            await copyFile(txtpath, dsttxtpath);
-                            ctx.logger.info(`复制${txtpath}到${dsttxtpath}结束`);
-                            await unlink(txtpath);
-                            ctx.logger.info(`删除${txtpath}结束`);
-                        } catch(ex) {}
-
-                        // 复制flv到远程地址
-                        await copyFile(flvpath, dstflvpath);
-                        ctx.logger.info(`复制${flvpath}到${dstflvpath}结束`);
-                        await unlink(flvpath);
-                        ctx.logger.info(`删除${flvpath}结束`);
+                        await unlink(livexmlpath);
+                        ctx.logger.info(`删除${livexmlpath}结束`);
+                        await unlink(liveflvpath);
+                        ctx.logger.info(`删除${liveflvpath}结束`);
                     } catch (ex) {
                         ctx.logger.error(ex);
                     }

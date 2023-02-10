@@ -7,6 +7,7 @@ export default {
     rec: {
         minInterval: 最小录播时长,
         root: '录播文件夹位置',
+        live: '直播文件夹位置',
         od1: 'OneDrive 1 文件夹位置',
         od2: 'OneDrive 2 文件夹位置',
         m4a: 'm4a归档文件夹位置',
