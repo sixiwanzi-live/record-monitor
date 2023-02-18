@@ -99,7 +99,7 @@ export default class BililiveService {
                 const uid = roomInfo.uid;
                 const cover = roomInfo.user_cover.substring(8); // 去掉https://
 
-                await PushApi.push('录制开始', `${name},${title}`);
+                PushApi.push('录制开始', `${name},${title}`);
 
                 const clip = {
                     uid:        uid,
