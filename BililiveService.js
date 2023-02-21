@@ -234,7 +234,8 @@ export default class BililiveService {
                         if (duration >= config.rec.minInterval) {
                             try {
                                 await this._toImageMP4(ctx, dstm4apath, dstimagemp4path);
-                                await this._upload(ctx, dstimagemp4path);
+                                const imageMp4Title = flvname.replace(`.flv`, ``).replace(`-${name}-`, `-${clip.authorId}-`);
+                                await this._upload(ctx, dstimagemp4path, imageMp4Title);
                                 ctx.logger.info(`上传视频${dstimagemp4path}结束`);
                             } catch (ex) {
                                 // 就算上传失败，也不影响接下来的操作
@@ -367,11 +368,12 @@ export default class BililiveService {
         });
     }
 
-    _upload = async (ctx, mp4path) => {
+    _upload = async (ctx, mp4path, title) => {
         return new Promise((res, rej) => {
             const cmd = [
                 '-u', config.up.cookiepath,
                 'upload', mp4path,
+                '--title', title,
                 '--tag', config.up.tags,
                 '--line', 'ws',
                 '--limit', '3'
