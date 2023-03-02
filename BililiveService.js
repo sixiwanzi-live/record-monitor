@@ -16,69 +16,67 @@ export default class BililiveService {
         this.diskTaskPool.run();
 
         this.roomMap = new Map();
-        this.odMap = new Map();
-        this.odMap.set(1, '四禧丸子');
-        this.odMap.set(2, '四禧丸子');
-        this.odMap.set(3, '四禧丸子');
-        this.odMap.set(4, '四禧丸子');
-        this.odMap.set(5, '量子少年');
-        this.odMap.set(6, '量子少年');
-        this.odMap.set(9, 'EOE组合');
-        this.odMap.set(10, 'EOE组合');
-        this.odMap.set(11, 'EOE组合');
-        this.odMap.set(12, 'EOE组合');
-        this.odMap.set(13, 'EOE组合');
-        this.odMap.set(14, 'sp9/明前奶绿');
-        this.odMap.set(15, '星律动');
-        this.odMap.set(16, '星律动');
-        this.odMap.set(17, '星律动');
-        this.odMap.set(18, '量子少年');
-        this.odMap.set(19, '量子少年');
-        this.odMap.set(20, 'sp7/麻尤米mayumi');
-        this.odMap.set(22, 'ASOUL');
-        this.odMap.set(23, 'ASOUL');
-        this.odMap.set(24, 'ASOUL');
-        this.odMap.set(25, 'ASOUL');
-        this.odMap.set(26, 'ASOUL');
-        this.odMap.set(27, '星律动');
-        this.odMap.set(28, '星律动');
-        this.odMap.set(32, 'sp2/星瞳_Official');
-        this.odMap.set(33, '星律动');
-        this.odMap.set(35, 'VirtuaReal-Part1/七海Nana7mi');
-        this.odMap.set(36, 'VirtuaReal-Part1/阿梓从小就很可爱');
-        this.odMap.set(37, 'VirtuaReal-Part1/小可学妹');
-        this.odMap.set(38, 'VirtuaReal-Part1/阿萨Aza');
+        this.od1Map = new Map();
+        this.od1Map.set(1, '四禧丸子');
+        this.od1Map.set(2, '四禧丸子');
+        this.od1Map.set(3, '四禧丸子');
+        this.od1Map.set(4, '四禧丸子');
+        this.od1Map.set(9, 'EOE组合');
+        this.od1Map.set(10, 'EOE组合');
+        this.od1Map.set(11, 'EOE组合');
+        this.od1Map.set(12, 'EOE组合');
+        this.od1Map.set(13, 'EOE组合');
+        this.od1Map.set(14, 'sp9/明前奶绿');
+        this.od1Map.set(15, '星律动');
+        this.od1Map.set(16, '星律动');
+        this.od1Map.set(17, '星律动');
+        this.od1Map.set(20, 'sp7/麻尤米mayumi');
+        this.od1Map.set(22, 'ASOUL');
+        this.od1Map.set(23, 'ASOUL');
+        this.od1Map.set(24, 'ASOUL');
+        this.od1Map.set(25, 'ASOUL');
+        this.od1Map.set(26, 'ASOUL');
+        this.od1Map.set(27, '星律动');
+        this.od1Map.set(28, '星律动');
+        this.od1Map.set(32, 'sp2/星瞳_Official');
+        this.od1Map.set(33, '星律动');
 
-        this.od2Set = new Set();
-        this.od2Set.add(1);
-        this.od2Set.add(2);
-        this.od2Set.add(3);
-        this.od2Set.add(4);
-        this.od2Set.add(5);
-        this.od2Set.add(6);
-        this.od2Set.add(9);
-        this.od2Set.add(10);
-        this.od2Set.add(11);
-        this.od2Set.add(12);
-        this.od2Set.add(13);
-        this.od2Set.add(14);
-        this.od2Set.add(15);
-        this.od2Set.add(16);
-        this.od2Set.add(17);
-        this.od2Set.add(18);
-        this.od2Set.add(19);
-        this.od2Set.add(22);
-        this.od2Set.add(23);
-        this.od2Set.add(24);
-        this.od2Set.add(25);
-        this.od2Set.add(26);
-        this.od2Set.add(27);
-        this.od2Set.add(28);
-        this.od2Set.add(33);
-        this.od2Set.add(35);
-        this.od2Set.add(36);
-        this.od2Set.add(37);
-        this.od2Set.add(38);
+        this.od2Map = new Map();
+        this.od2Map.set(1, '四禧丸子');
+        this.od2Map.set(2, '四禧丸子');
+        this.od2Map.set(3, '四禧丸子');
+        this.od2Map.set(4, '四禧丸子');
+        this.od2Map.set(5, '量子少年');
+        this.od2Map.set(6, '量子少年');
+        this.od2Map.set(9, 'EOE组合');
+        this.od2Map.set(10, 'EOE组合');
+        this.od2Map.set(11, 'EOE组合');
+        this.od2Map.set(12, 'EOE组合');
+        this.od2Map.set(13, 'EOE组合');
+        this.od2Map.set(14, 'sp9/明前奶绿');
+        this.od2Map.set(15, '星律动');
+        this.od2Map.set(16, '星律动');
+        this.od2Map.set(17, '星律动');
+        this.od2Map.set(18, '量子少年');
+        this.od2Map.set(19, '量子少年');
+        this.od2Map.set(20, 'sp7/麻尤米mayumi');
+        this.od2Map.set(22, 'ASOUL');
+        this.od2Map.set(23, 'ASOUL');
+        this.od2Map.set(24, 'ASOUL');
+        this.od2Map.set(25, 'ASOUL');
+        this.od2Map.set(26, 'ASOUL');
+        this.od2Map.set(27, '星律动');
+        this.od2Map.set(28, '星律动');
+        this.od2Map.set(33, '星律动');
+        this.od2Map.set(35, 'VirtuaReal-Part1/七海Nana7mi');
+        this.od2Map.set(36, 'VirtuaReal-Part1/阿梓从小就很可爱');
+        this.od2Map.set(37, 'VirtuaReal-Part1/小可学妹');
+        this.od2Map.set(38, 'VirtuaReal-Part1/阿萨Aza');
+        this.od2Map.set(46, '完美世界/露米Lumi_Official');
+        this.od2Map.set(47, '完美世界/露娜Luna_Official');
+        this.od2Map.set(48, '完美世界/永恒娘Official');
+        this.od2Map.set(49, '完美世界/古堡龙姬');
+        this.od2Map.set(50, '完美世界/dodo_Official');
     }
 
     webhook = async (ctx) => {
@@ -161,7 +159,7 @@ export default class BililiveService {
                 } else {
                     PushApi.push('录制结束', message);
                     // 本地源的录播需要改变状态，B站源的录播不需要改变状态
-                    if (this.odMap.has(clip.authorId)) {
+                    if (this.od1Map.has(clip.authorId) || this.od2Map.has(clip.authorId)) {
                         for (let i = 0; i < config.web.retry; ++i) { // 重试10次
                             try {
                                 const newClip = await ZimuApi.updateClip(clip.id, { type: 3 });
@@ -179,9 +177,8 @@ export default class BililiveService {
                 }
 
                 // 接下来的一系列转码和文件转移操作，均只涉及到本地源，B站源的录播可以直接退出
-                if (!this.odMap.has(clip.authorId)) return {};
+                if (!this.od1Map.has(clip.authorId) && !this.od2Map.has(clip.authorId)) return {};
 
-                const odPrefix = this.odMap.get(clip.authorId);
                 // 生成flv,mp4,xml,txt的源和目的文件路径
                 const flvname = body.EventData.RelativePath.split('/')[2];
                 const xmlname = flvname.replace('.flv', '.xml');
@@ -197,17 +194,13 @@ export default class BililiveService {
                 const rootxmlpath = rootflvpath.replace('.flv', '.xml');
                 const rootmp4path = rootflvpath.replace('.flv', '.mp4');
 
-                const od1mp4path = `${config.rec.od1}/${odPrefix}/${mp4name.substring(0, 4)}.${mp4name.substring(4, 6)}/${mp4name}`;
-                const od1xmlpath = `${config.rec.od1}/${odPrefix}/${xmlname.substring(0, 4)}.${xmlname.substring(4, 6)}/${xmlname}`;
-                const od2mp4path = `${config.rec.od2}/${odPrefix}/${mp4name.substring(0, 4)}.${mp4name.substring(4, 6)}/${mp4name}`;
-                const od2xmlpath = `${config.rec.od2}/${odPrefix}/${xmlname.substring(0, 4)}.${xmlname.substring(4, 6)}/${xmlname}`;
                 const dstm4apath = `${config.rec.m4a}/${m4aname}`;
                 const dstimagemp4path = `${config.rec.imagemp4}/${mp4name}`;
                 const dstflvpath = `${config.rec.flv}/${flvname}`;
                 const dsttxtpath = `${config.rec.flv}/${txtname}`;
                 const dstmp4path = `${config.rec.mp4}/${mp4name}`;
                 const dstxmlpath = `${config.rec.mp4}/${xmlname}`;
-                ctx.logger.info({liveflvpath, livexmlpath, od1mp4path, od1xmlpath, od2mp4path, od2xmlpath, dstm4apath, dstimagemp4path, dstflvpath, dstmp4path});
+                ctx.logger.info({liveflvpath, livexmlpath, dstm4apath, dstimagemp4path, dstflvpath, dstmp4path});
 
                 ctx.logger.info('准备处理数据转换和迁移');
                 this.diskTaskPool.push(async () => {
@@ -246,28 +239,38 @@ export default class BililiveService {
                         ctx.logger.info('开始flv转mp4');
                         await this._toMP4(ctx, dstflvpath, dstmp4path);
                         // 复制mp4到od1,od2和root区
-                        // 时间长度够了才往od1,od2放
+                        // 时间长度够了才放
                         if (duration >= config.rec.minInterval) {
                             await copyFile(dstmp4path, rootmp4path);
                             ctx.logger.info(`复制${dstmp4path}到${rootmp4path}结束`);
-                            await copyFile(dstmp4path, od1mp4path);
-                            ctx.logger.info(`复制${dstmp4path}到${od1mp4path}结束`);
-                            if (this.od2Set.has(clip.authorId)) {
+                            if (this.od1Map.has(clip.authorId)) {
+                                const od1Prefix = this.od1Map.get(clip.authorId);
+                                const od1mp4path = `${config.rec.od1}/${od1Prefix}/${mp4name.substring(0, 4)}.${mp4name.substring(4, 6)}/${mp4name}`;
+                                await copyFile(dstmp4path, od1mp4path);
+                                ctx.logger.info(`复制${dstmp4path}到${od1mp4path}结束`);
+                            }
+                            if (this.od2Map.has(clip.authorId)) {
+                                const od2Prefix = this.od2Map.get(clip.authorId);
+                                const od2mp4path = `${config.rec.od2}/${od2Prefix}/${mp4name.substring(0, 4)}.${mp4name.substring(4, 6)}/${mp4name}`;
                                 await copyFile(dstmp4path, od2mp4path);
                                 ctx.logger.info(`复制${dstmp4path}到${od2mp4path}结束`);
                             }
-                        }
-                                                
-                        // 复制xml到od1和od2和root区
-                        if (duration >= config.rec.minInterval) {
+
+                            // 复制xml到od1和od2和root区
                             await copyFile(dstxmlpath, rootxmlpath);
                             ctx.logger.info(`复制${dstxmlpath}到${rootxmlpath}结束`);
-                            await copyFile(dstxmlpath, od1xmlpath);
-                            ctx.logger.info(`复制${dstxmlpath}到${od1xmlpath}结束`);
-                            if (this.od2Set.has(clip.authorId)) {
+                            if (this.od1Map.has(clip.authorId)) {
+                                const od1Prefix = this.od1Map.get(clip.authorId);
+                                const od1xmlpath = `${config.rec.od1}/${od1Prefix}/${xmlname.substring(0, 4)}.${xmlname.substring(4, 6)}/${xmlname}`;
+                                await copyFile(dstxmlpath, od1xmlpath);
+                                ctx.logger.info(`复制${dstxmlpath}到${od1xmlpath}结束`);
+                            }
+                            if (this.od2Map.has(clip.authorId)) {
+                                const od2Prefix = this.od2Map.get(clip.authorId);
+                                const od2xmlpath = `${config.rec.od2}/${od2Prefix}/${xmlname.substring(0, 4)}.${xmlname.substring(4, 6)}/${xmlname}`;
                                 await copyFile(dstxmlpath, od2xmlpath);
                                 ctx.logger.info(`复制${dstxmlpath}到${od2xmlpath}结束`);
-                            }                
+                            }
                         }
 
                         await unlink(livexmlpath);
