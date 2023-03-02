@@ -246,10 +246,10 @@ export default class BililiveService {
                         ctx.logger.info('开始flv转mp4');
                         await this._toMP4(ctx, dstflvpath, dstmp4path);
                         // 复制mp4到od1,od2和root区
-                        await copyFile(dstmp4path, rootmp4path);
-                        ctx.logger.info(`复制${dstmp4path}到${rootmp4path}结束`);
                         // 时间长度够了才往od1,od2放
                         if (duration >= config.rec.minInterval) {
+                            await copyFile(dstmp4path, rootmp4path);
+                            ctx.logger.info(`复制${dstmp4path}到${rootmp4path}结束`);
                             await copyFile(dstmp4path, od1mp4path);
                             ctx.logger.info(`复制${dstmp4path}到${od1mp4path}结束`);
                             if (this.od2Set.has(clip.authorId)) {
@@ -257,12 +257,11 @@ export default class BililiveService {
                                 ctx.logger.info(`复制${dstmp4path}到${od2mp4path}结束`);
                             }
                         }
-                        
                                                 
                         // 复制xml到od1和od2和root区
-                        await copyFile(dstxmlpath, rootxmlpath);
-                        ctx.logger.info(`复制${dstxmlpath}到${rootxmlpath}结束`);
                         if (duration >= config.rec.minInterval) {
+                            await copyFile(dstxmlpath, rootxmlpath);
+                            ctx.logger.info(`复制${dstxmlpath}到${rootxmlpath}结束`);
                             await copyFile(dstxmlpath, od1xmlpath);
                             ctx.logger.info(`复制${dstxmlpath}到${od1xmlpath}结束`);
                             if (this.od2Set.has(clip.authorId)) {
