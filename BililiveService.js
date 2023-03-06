@@ -86,7 +86,8 @@ export default class BililiveService {
         const type = body.EventType;
         if (type === 'FileOpening') {
             ctx.logger.info('录制开始webhook'); 
-            const datetime = body.EventData.FileOpenTime.substring(0, 19).replace('T', ' ');
+            const filename = body.EventData.RelativePath.split('/')[2];
+            const datetime = `${filename.substring(0, 4)}-${filename.substring(4, 6)}-${filename.substring(6, 8)} ${filename.substring(9, 11)}:${filename.substring(11, 13)}:${filename.substring(13, 15)}`;
             const roomId = body.EventData.RoomId;
             const name = body.EventData.Name;
             const title = body.EventData.Title.replaceAll('*', '_'); // 针对某些标题中含有*的情况，为了兼容windows系统文件，将*换成_
