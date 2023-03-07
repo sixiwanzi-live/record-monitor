@@ -40,6 +40,7 @@ export default class BililiveService {
         this.od1Map.set(28, '星律动');
         this.od1Map.set(32, 'sp2/星瞳_Official');
         this.od1Map.set(33, '星律动');
+        this.od1Map.set(52, '星律动');
 
         this.od2Map = new Map();
         this.od2Map.set(1, '四禧丸子');
@@ -76,6 +77,7 @@ export default class BililiveService {
         this.od2Map.set(48, '完美世界/永恒娘Official');
         this.od2Map.set(49, '完美世界/古堡龙姬');
         this.od2Map.set(50, '完美世界/dodo_Official');
+        this.od2Map.set(52, '星律动');
     }
 
     webhook = async (ctx) => {
