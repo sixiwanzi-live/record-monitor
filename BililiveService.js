@@ -41,6 +41,10 @@ export default class BililiveService {
         this.od1Map.set(32, 'sp2/星瞳_Official');
         this.od1Map.set(33, '星律动');
         this.od1Map.set(52, '星律动');
+        this.od1Map.set(59, 'ttup');
+        this.od1Map.set(60, 'ttup');
+        this.od1Map.set(61, 'ttup');
+        this.od1Map.set(62, 'ttup');
 
         this.od2Map = new Map();
         this.od2Map.set(1, '四禧丸子');
